@@ -25,7 +25,7 @@ public:
 	RangeSumQuery(const int array_size)
 		: container_(array_size + 1) {}
 	// indexは0-indexed
-	void update(const int index, const int added)
+	void update(const int index, const long long added)
 	{
 		for (int update_place{index + 1}; update_place < (int)(container_.size()); update_place += update_place & -update_place)
 			container_[update_place] += added;
