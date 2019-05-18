@@ -12,16 +12,17 @@
 class RangeMinimumQuery {
 private:
 	std::vector<long long> container_;
+	const long long inf_{LLONG_MAX};
 	void constructorHelper(const unsigned int array_size)
 	{
 		unsigned int length{1};
 		while (length < array_size)
 			length <<= 1;
-		container_.resize(2 * length, 1ll << 60);
+		container_.resize(2 * length, inf);
 	}
 	long long getHelper(const int index, const int node_l, const int node_r, const int query_l, const int query_r) const
 	{
-		if (query_r <= node_l || node_r <= query_l) return 1ll << 60;
+		if (query_r <= node_l || node_r <= query_l) return inf_;
 		if (query_l <= node_l && node_r <= query_r) return container_[index];
 		const int node_m{(node_l + node_r) >> 1};
 		return std::min(getHelper(2 * index, node_l, node_m, query_l, query_r), getHelper(2 * index + 1, node_m, node_r, query_l, query_r));
@@ -37,7 +38,7 @@ public:
 			container_[i] = std::min(container_[2 * i], container_[2 * i + 1]);
 	}
 	// indexは0-indexed
-	void update(const int index, const int assigned)
+	void update(const int index, const long long assigned)
 	{
 		auto update_place{(container_.size() >> 1) + index};
 		container_[update_place] = assigned;
