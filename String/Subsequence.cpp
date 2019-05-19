@@ -26,7 +26,7 @@ private:
 public:
 	Automaton_t table;
 	
-	SubsequenceAutomaton(const std::string& S)
+	SubsequenceAutomaton(const std::string& S, const char initial_char = 'a')
 		: table(S.size() + 2)
 	{
 		std::fill(table.back().begin(), table.back().end(), (int)table.size() - 1);
@@ -35,24 +35,25 @@ public:
 		for (int s_i{(int)S.size() - 1}; s_i >= 0; s_i--)
 		{
 			std::copy(table[s_i + 1].begin(), table[s_i + 1].end(), table[s_i].begin());
-			table[s_i][S[s_i] - 'a'] = s_i + 1;
+			table[s_i][S[s_i] - initial_char] = s_i + 1;
 		}
 	}
 };
 
 class Subsequence {
 private:
-	std::stack<int> indices;
-	SubsequenceAutomaton automaton;
+	std::stack<int> indices_;
+	SubsequenceAutomaton automaton_;
+	char initial_char_;
 
 	bool add(int next_c)
 	{
 		for (; next_c < 26; next_c++)
 		{
-			if (automaton.table[indices.top()][next_c] == (int)automaton.table.size() - 1)
+			if (automaton_.table[indices_.top()][next_c] == (int)automaton_.table.size() - 1)
 				continue;
 			str.push_back('a' + next_c);
-			indices.push(automaton.table[indices.top()][next_c]);
+			indices_.push(automaton_.table[indices_.top()][next_c]);
 			return true;
 		}
 		return false;
@@ -61,10 +62,10 @@ private:
 public:
 	std::string str;
 
-	Subsequence(std::string& S)
-		: automaton(S)
+	Subsequence(std::string& S, const char initial_char = 'a')
+		: automaton_(S, initial_char), initial_char_(initial_char)
 	{
-		indices.push(0);
+		indices_.push(0);
 	}
 
 	bool next()
@@ -73,9 +74,9 @@ public:
 		while (!add(next_c))
 		{
 			if (str.empty()) return false;
-			next_c = str.back() - 'a' + 1;
+			next_c = str.back() - initial_char_ + 1;
 			str.pop_back();
-			indices.pop();
+			indices_.pop();
 		}
 		return true;
 	}
