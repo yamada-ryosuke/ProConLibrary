@@ -11,24 +11,6 @@
 
 class RangeMinimumQueryWithProxy {
 private:
-	std::vector<long long> container_;
-	const long long inf_{LLONG_MAX};
-	void constructorHelper(const unsigned int array_size)
-	{
-		unsigned int length{1};
-		while (length < array_size)
-			length <<= 1;
-		container_.resize(2 * length, inf_);
-	}
-	long long getHelper(const int index, const int node_l, const int node_r, const int query_l, const int query_r) const
-	{
-		if (query_r <= node_l || node_r <= query_l) return inf_;
-		if (query_l <= node_l && node_r <= query_r) return container_[index];
-		const int node_m{(node_l + node_r) >> 1};
-		return std::min(getHelper(2 * index, node_l, node_m, query_l, query_r), getHelper(2 * index + 1, node_m, node_r, query_l, query_r));
-	}
-
-public:
 	// 一点操作用プロキシクラス(更新用)
 	class OnePointProxy {
 	private:
@@ -57,10 +39,23 @@ public:
 		// 取得
 		operator long long() const { return rmq_.get(left_, right_); }
 	};
-	RangeMinimumQueryWithProxy(const unsigned int array_size) { constructorHelper(array_size); }
+
+	std::vector<long long> container_;
+	const long long inf_{LLONG_MAX};
+
+	void build(const unsigned int array_size)
+	{
+		unsigned int length{1};
+		while (length < array_size)
+			length <<= 1;
+		container_.resize(2 * length, inf_);
+	}
+
+public:
+	RangeMinimumQueryWithProxy(const unsigned int array_size) { build(array_size); }
 	RangeMinimumQueryWithProxy(const std::vector<long long> &array)
 	{
-		constructorHelper(array.size());
+		build(array.size());
 		std::copy(array.begin(), array.end(), container_.begin() + array.size());
 		for (auto i{(container_.size() >> 1) - 1}; i > 0; i--)
 			container_[i] = std::min(container_[2 * i], container_[2 * i + 1]);
@@ -79,7 +74,29 @@ public:
 	// 引数は0-indexed、[l, r)の半開区間
 	long long get(const int left, const int right) const
 	{
-		return getHelper(1, 0, container_.size() >> 1, left, right);
+		// ノードの番号、左端、右端
+		using i3 = std::array<int, 3>;
+		std::stack<i3> pre_added;
+		pre_added.push({1, 0, (int)container_.size() >> 1});
+
+		long long min{inf_};
+		while (!pre_added.empty())
+		{
+			i3 added{pre_added.top()};
+			pre_added.pop();
+			if (added[2] <= left || right <= added[1])
+				continue;
+			
+			if (left <= added[1] && added[2] <= right)
+				min = std::min(min, container_[added[0]]);
+			else
+			{
+				int mid{(added[1] + added[2]) >> 1};
+				pre_added.push({2 * added[0], added[1], mid});
+				pre_added.push({2 * added[0] + 1, mid, added[2]});
+			}
+		}
+		return min;
 	}
 	// 引数は0-indexed
 	OnePointProxy operator[](const int index) { return OnePointProxy(*this, index); }
