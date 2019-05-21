@@ -40,6 +40,12 @@ public:
 	}
 };
 
+/////////////////
+// 部分列全列挙 //
+/////////////////
+
+// 使い方はnext_permutationと同様にdo-whileで回す
+
 class Subsequence {
 private:
 	std::stack<int> indices_;
