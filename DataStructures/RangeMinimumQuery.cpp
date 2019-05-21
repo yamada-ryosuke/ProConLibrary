@@ -13,7 +13,7 @@ class RangeMinimumQuery {
 private:
 	std::vector<long long> container_;
 	const long long inf_{LLONG_MAX};
-	void constructorHelper(const unsigned int array_size)
+	void build(const unsigned int array_size)
 	{
 		unsigned int length{1};
 		while (length < array_size)
@@ -22,10 +22,10 @@ private:
 	}
 
 public:
-	RangeMinimumQuery(const unsigned int array_size) { constructorHelper(array_size); }
+	RangeMinimumQuery(const unsigned int array_size) { build(array_size); }
 	RangeMinimumQuery(const std::vector<long long> &array)
 	{
-		constructorHelper(array.size());
+		build(array.size());
 		std::copy(array.begin(), array.end(), container_.begin() + (container_.size() >> 1));
 		for (auto i{(container_.size() >> 1) - 1}; i > 0; i--)
 			container_[i] = std::min(container_[2 * i], container_[2 * i + 1]);
