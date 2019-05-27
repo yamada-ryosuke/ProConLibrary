@@ -11,7 +11,7 @@
 
 class RUQ {
 private:
-	std::vector<int64_t> container_, time_container_;
+	std::vector<int64_t> num_container_, time_container_;
 	const int64_t optional_{(1ll << 31) - 1};
 	int update_num_{};
 
@@ -20,7 +20,7 @@ private:
 		unsigned int length{1};
 		while (length < array_size)
 			length <<= 1;
-		container_.resize(2 * length, optional_);
+		num_container_.resize(2 * length, optional_);
 		time_container_.resize(2 * length, -1);
 	}
 
@@ -29,27 +29,27 @@ public:
 	RUQ(const std::vector<int64_t> &array)
 	{
 		build(array.size());
-		std::copy(array.begin(), array.end(), container_.begin() + (container_.size() >> 1));
-		for (int i{((int)container_.size() >> 1) - 1}; i > 0; i--)
-			container_[i] = container_[2 * i] + container_[2 * i + 1];
+		std::copy(array.begin(), array.end(), num_container_.begin() + (num_container_.size() >> 1));
+		std::fill(time_container_.begin() + ((int)time_container_.size() >> 1), time_container_.begin() + ((int)time_container_.size() >> 1) + (int)array.size(), update_num_);
+		update_num_++;
 	}
 	// left,rightは0-indexed、[left, right)の半開区間
 	void update(const int left, const int right, const int64_t assigned)
 	{
-		for (int left_i{std::max(0, left) + ((int)container_.size() >> 1)}, right_i{std::min((int)container_.size() >> 1, right) + ((int)container_.size() >> 1)};
+		for (int left_i{std::max(0, left) + ((int)num_container_.size() >> 1)}, right_i{std::min((int)num_container_.size() >> 1, right) + ((int)num_container_.size() >> 1)};
 			left_i < right_i; left_i >>= 1, right_i >>= 1
 			)
 		{
 			if (left_i & 1)
 			{
-				container_[left_i] = assigned;
+				num_container_[left_i] = assigned;
 				time_container_[left_i] = update_num_;
 				left_i++;
 			}
 			if (right_i & 1)
 			{
 				right_i--;
-				container_[right_i] = assigned;
+				num_container_[right_i] = assigned;
 				time_container_[right_i] = update_num_;
 			}
 		}
@@ -60,10 +60,10 @@ public:
 	{
 		int64_t last{optional_};
 		int last_time{-1};
-		for (int assign_place{index + ((int)container_.size() >> 1)}; assign_place > 0; assign_place >>= 1)
+		for (int assign_place{index + ((int)num_container_.size() >> 1)}; assign_place > 0; assign_place >>= 1)
 			if (time_container_[assign_place] > last_time)
 			{
-				last = container_[assign_place];
+				last = num_container_[assign_place];
 				last_time = time_container_[assign_place];
 			}
 		return last;
