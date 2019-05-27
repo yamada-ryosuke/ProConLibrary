@@ -12,6 +12,7 @@
 class RURMinQ {
 private:
 	std::vector<long long> container_;
+
 	void constructorHelper(const unsigned int array_size)
 	{
 		unsigned int length{1};

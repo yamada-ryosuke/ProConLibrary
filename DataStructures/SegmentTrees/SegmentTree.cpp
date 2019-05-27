@@ -25,6 +25,7 @@ private:
 	Update_t assign_;
 	// モノイドの単位元
 	T identity_;
+
 	void build(const unsigned int array_size)
 	{
 		unsigned int length{1};

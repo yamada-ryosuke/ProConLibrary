@@ -13,6 +13,7 @@ class RMinQ {
 private:
 	std::vector<int64_t> container_;
 	const int64_t inf_{LLONG_MAX};
+
 	void build(const unsigned int array_size)
 	{
 		unsigned int length{1};

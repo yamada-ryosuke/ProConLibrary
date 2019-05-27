@@ -13,6 +13,7 @@ class RMaxQ {
 private:
 	std::vector<int64_t> container_;
 	const int64_t negative_inf_{LLONG_MIN};
+
 	void build(const unsigned int array_size)
 	{
 		unsigned int length{1};

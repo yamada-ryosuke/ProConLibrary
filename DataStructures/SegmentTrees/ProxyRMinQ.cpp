@@ -21,7 +21,7 @@ private:
 		OnePointProxy(ProxyRMinQ& rmq, const int index)
 			: rmq_(rmq), index_(index){}
 		// 値変更
-		OnePointProxy &operator=(const long long assigned)
+		OnePointProxy &operator=(const int64_t assigned)
 		{
 			rmq_.update(index_, assigned);
 			return *this;
@@ -37,11 +37,11 @@ private:
 		RangeProxy(const ProxyRMinQ& rmq, const std::initializer_list<int>& span)
 			: rmq_(rmq), left_(*span.begin()), right_(*(span.begin() + 1)){}
 		// 取得
-		operator long long() const { return rmq_.get(left_, right_); }
+		operator int64_t() const { return rmq_.get(left_, right_); }
 	};
 
-	std::vector<long long> container_;
-	const long long inf_{LLONG_MAX};
+	std::vector<int64_t> container_;
+	const int64_t inf_{LLONG_MAX};
 
 	void build(const unsigned int array_size)
 	{
@@ -53,7 +53,7 @@ private:
 
 public:
 	ProxyRMinQ(const unsigned int array_size) { build(array_size); }
-	ProxyRMinQ(const std::vector<long long> &array)
+	ProxyRMinQ(const std::vector<int64_t> &array)
 	{
 		build(array.size());
 		std::copy(array.begin(), array.end(), container_.begin() + array.size());
@@ -61,7 +61,7 @@ public:
 			container_[i] = std::min(container_[2 * i], container_[2 * i + 1]);
 	}
 	// 引数は0-indexed
-	void update(const int index, const long long assigned)
+	void update(const int index, const int64_t assigned)
 	{
 		auto update_place{(container_.size() >> 1) + index};
 		container_[update_place] = assigned;
@@ -72,28 +72,22 @@ public:
 		}
 	}
 	// 引数は0-indexed、[l, r)の半開区間
-	long long get(const int left, const int right) const
+	int64_t get(const int left, const int right) const
 	{
-		// ノードの番号、左端、右端
-		using i3 = std::array<int, 3>;
-		std::stack<i3> pre_added;
-		pre_added.push({1, 0, (int)container_.size() >> 1});
-
-		long long min{inf_};
-		while (!pre_added.empty())
+		int64_t min{inf_};
+		for (int left_i{std::max(0, left) + ((int)container_.size() >> 1)}, right_i{std::min((int)container_.size() >> 1, right) + ((int)container_.size() >> 1)};
+			left_i < right_i; left_i >>= 1, right_i >>= 1
+			)
 		{
-			i3 added{pre_added.top()};
-			pre_added.pop();
-			if (added[2] <= left || right <= added[1])
-				continue;
-			
-			if (left <= added[1] && added[2] <= right)
-				min = std::min(min, container_[added[0]]);
-			else
+			if (left_i & 1)
 			{
-				int mid{(added[1] + added[2]) >> 1};
-				pre_added.push({2 * added[0], added[1], mid});
-				pre_added.push({2 * added[0] + 1, mid, added[2]});
+				min = std::min(min, container_[left_i]);
+				left_i++;
+			}
+			if (right_i & 1)
+			{
+				right_i--;
+				min = std::min(min, container_[right_i]);
 			}
 		}
 		return min;
