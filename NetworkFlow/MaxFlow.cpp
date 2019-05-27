@@ -36,7 +36,7 @@ private:
 public:
 	MaxFlow(const int node_num)
 		: graph_(node_num, vi64(node_num)), visited_(node_num){}
-	void add_edge(const int from, const int to, const int64_t flow)
+	void addEdge(const int from, const int to, const int64_t flow)
 	{
 		graph_[from][to] += flow;
 	}
@@ -70,7 +70,7 @@ int main()
 	{
 		int u, v, c;
 		scanf("%d%d%d", &u, &v, &c);
-		max_flow.add_edge(u, v, c);
+		max_flow.addEdge(u, v, c);
 	}
 	printf("%lld\n", max_flow(0, V - 1));
 	return 0;
