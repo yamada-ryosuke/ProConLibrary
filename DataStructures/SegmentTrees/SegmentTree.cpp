@@ -6,7 +6,7 @@
 
 
 ///////////////////////
-// 抽象化セグメント木///
+// 抽象化セグメント木 //
 //////////////////////
 
 // モノイドを扱えるが半群は扱えない
@@ -15,10 +15,15 @@
 template <typename T>
 class SegmentTree {
 private:
-	using Ft = std::function<T(T, T)>;
+	using Operation_t = std::function<T(T, T)>;
+	using Update_t = std::function<void(T&, T)>;
 
 	std::vector<T> container_;
-	Ft operate_, assign_;
+	// モノイドの演算
+	Operation_t operate_;
+	// 内部で第一引数に第二引数を用いた代入操作を行う関数なので、第一引数は参照渡しする必要がある
+	Update_t assign_;
+	// モノイドの単位元
 	T identity_;
 	void build(const unsigned int array_size)
 	{
@@ -44,13 +49,13 @@ private:
 	}
 
 public:
-	SegmentTree(const unsigned int array_size, Ft operate, Ft assign, T identity)
+	SegmentTree(const unsigned int array_size, Operation_t operate, Update_t assign, T identity)
 		: operate_(operate), assign_(assign), identity_(identity)
 	{
 		build(array_size);
 	}
 	template<typename Operator_t>
-	SegmentTree(const std::vector<T> &array, Ft operate, Ft assign, T identity)
+	SegmentTree(const std::vector<T> &array, Operation_t operate, Update_t assign, T identity)
 		: operate_(operate), assign_(assign), identity_(identity)
 	{
 		build(array.size());
@@ -64,7 +69,7 @@ public:
 	void update(const int index, const T operand)
 	{
 		unsigned int container_i{((unsigned int)container_.size() >> 1) + index};
-		container_[container_i] = assign_(container_[container_i], operand);
+		assign_(container_[container_i], operand);
 		for (container_i >>= 1; container_i > 0; container_i >>= 1)
 			container_[container_i] = operate_(container_[2 * container_i], container_[2 * container_i + 1]);
 	}
@@ -104,7 +109,7 @@ int main()
 	scanf("%d%d", &n, &q);
 	SegmentTree<int64_t> st(n,
 			[](int64_t a, int64_t b){ return std::min(a, b); },
-			[](int64_t a, int64_t b){ return b; },
+			[](int64_t &a, int64_t b){ a = b; },
 			(1ll << 31) - 1
 		);
 

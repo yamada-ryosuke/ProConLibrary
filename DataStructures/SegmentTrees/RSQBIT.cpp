@@ -4,11 +4,11 @@
 /////////////////////////////////////////// ここからコピペ ////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///////////////////
-// RangeSumQuery //
-///////////////////
+///////////////////////////
+// Range Sum Query (BIT) //
+///////////////////////////
 
-class RangeSumQuery {
+class RSQBIT {
 private:
 	std::vector<long long> container_;
 	long long getHelper(const int index) const
@@ -22,7 +22,7 @@ private:
 	}
 
 public:
-	RangeSumQuery(const int array_size)
+	RSQBIT(const int array_size)
 		: container_(array_size + 1) {}
 	// indexは0-indexed
 	void update(const int index, const long long added)
@@ -46,7 +46,7 @@ int main()
 {
 	int n, q;
 	scanf("%d%d", &n, &q);
-	RangeSumQuery rsq(n);
+	RSQBIT rsq(n);
 	for (int i{}; i < q; i++)
 	{
 		int com, x, y;

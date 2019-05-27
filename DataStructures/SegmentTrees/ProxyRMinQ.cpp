@@ -5,20 +5,20 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-////////////////////////////////////
-// Range Minimum Query with Proxy //
-////////////////////////////////////
+///////////////////////////////
+// Proxy Range Minimum Query //
+///////////////////////////////
 
-class RangeMinimumQueryWithProxy {
+class ProxyRMinQ {
 private:
 	// 一点操作用プロキシクラス(更新用)
 	class OnePointProxy {
 	private:
-		RangeMinimumQueryWithProxy& rmq_;
+		ProxyRMinQ& rmq_;
 		const int index_;
 
 	public:
-		OnePointProxy(RangeMinimumQueryWithProxy& rmq, const int index)
+		OnePointProxy(ProxyRMinQ& rmq, const int index)
 			: rmq_(rmq), index_(index){}
 		// 値変更
 		OnePointProxy &operator=(const long long assigned)
@@ -30,11 +30,11 @@ private:
 	// 区間操作用プロキシクラス(取得用)
 	class RangeProxy {
 	private:
-		const RangeMinimumQueryWithProxy& rmq_;
+		const ProxyRMinQ& rmq_;
 		const int left_, right_;
 
 	public:
-		RangeProxy(const RangeMinimumQueryWithProxy& rmq, const std::initializer_list<int>& span)
+		RangeProxy(const ProxyRMinQ& rmq, const std::initializer_list<int>& span)
 			: rmq_(rmq), left_(*span.begin()), right_(*(span.begin() + 1)){}
 		// 取得
 		operator long long() const { return rmq_.get(left_, right_); }
@@ -52,8 +52,8 @@ private:
 	}
 
 public:
-	RangeMinimumQueryWithProxy(const unsigned int array_size) { build(array_size); }
-	RangeMinimumQueryWithProxy(const std::vector<long long> &array)
+	ProxyRMinQ(const unsigned int array_size) { build(array_size); }
+	ProxyRMinQ(const std::vector<long long> &array)
 	{
 		build(array.size());
 		std::copy(array.begin(), array.end(), container_.begin() + array.size());
@@ -115,7 +115,7 @@ int main()
 {
 	int n, q;
 	scanf("%d%d", &n, &q);
-	RangeMinimumQueryWithProxy rmq(n);
+	ProxyRMinQ rmq(n);
 	for (int i{}; i < q; i++)
 	{
 		int com, x, y;

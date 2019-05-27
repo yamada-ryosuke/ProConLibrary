@@ -9,7 +9,7 @@
 // Range Add Range Minimum Query //
 ///////////////////////////////////
 
-class LazyRangeSumQuery {
+class RARSQ {
 private:
 	// ノードの番号、左端、右端
 	using NodeInfo = std::array<int, 3>;
@@ -37,8 +37,8 @@ private:
 	}
 
 public:
-	LazyRangeSumQuery(const unsigned int array_size) { build(array_size); }
-	LazyRangeSumQuery(const std::vector<long long> &array)
+	RARSQ(const unsigned int array_size) { build(array_size); }
+	RARSQ(const std::vector<long long> &array)
 	{
 		build(array.size());
 		std::copy(array.begin(), array.end(), added_container_.begin() + (added_container_.size() >> 1));
@@ -103,7 +103,7 @@ int main()
 {
 	int n, q;
 	scanf("%d%d", &n, &q);
-	LazyRangeSumQuery lrsq(n);
+	RARSQ lrsq(n);
 	
 	for (int q_i{}; q_i < q; q_i++)
 	{

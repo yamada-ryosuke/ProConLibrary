@@ -5,11 +5,11 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-//////////////////////////////////////
-// Lazy Range Minimum Query(未完成) //
-/////////////////////////////////////
+//////////////////////////////////////////////
+// Range Update Range Minimum Query(未完成) //
+/////////////////////////////////////////////
 
-class LazyRangeMinimumQuery {
+class RURMinQ {
 private:
 	std::vector<long long> container_;
 	void constructorHelper(const unsigned int array_size)
@@ -21,8 +21,8 @@ private:
 	}
 
 public:
-	LazyRangeMinimumQuery(const unsigned int array_size) { constructorHelper(array_size); }
-	LazyRangeMinimumQuery(const std::vector<long long> &array)
+	RURMinQ(const unsigned int array_size) { constructorHelper(array_size); }
+	RURMinQ(const std::vector<long long> &array)
 	{
 		constructorHelper(array.size());
 		std::copy(array.begin(), array.end(), container_.begin() + array.size());
@@ -48,7 +48,7 @@ int main()
 {
 	int n, q;
 	scanf("%d%d", &n, &q);
-	LazyRangeMinimumQuery rmq(n);
+	RURMinQ rmq(n);
 	for (int i{}; i < q; i++)
 	{
 		int com, x, y;
