@@ -72,27 +72,20 @@ public:
 	// 配列内の半開区間[l,r)(0-indexed)の総和を返す
 	T get(const int left, const int right) const
 	{
-		// ノードの番号、左端、右端
-		using i3 = std::array<int, 3>;
-		std::stack<i3> pre_added;
-		pre_added.push({1, 0, (int)container_.size() >> 1});
-
 		T sum{identity_};
-		bool is_first{true};
-		while (!pre_added.empty())
+		for (int left_i{std::max(0, left) + ((int)container_.size() >> 1)}, right_i{std::min((int)container_.size() >> 1, right) + ((int)container_.size() >> 1)};
+			left_i < right_i; left_i >>= 1, right_i >>= 1
+			)
 		{
-			auto added{pre_added.top()};
-			pre_added.pop();
-			if (right <= added[1] || added[2] <= left)
-				continue;
-
-			if (left <= added[1] && added[2] <= right)
-				sum = operate_(sum, container_[added[0]]);
-			else
+			if (left_i & 1)
 			{
-				const int mid{(added[1] + added[2]) >> 1};
-				pre_added.push({2 * added[0] + 1, mid, added[2]});
-				pre_added.push({2 * added[0], added[1], mid});
+				sum = operate_(sum, container_[left_i]);
+				left_i++;
+			}
+			if (right_i & 1)
+			{
+				right_i--;
+				sum = operate_(sum, container_[right_i]);
 			}
 		}
 		return sum;
