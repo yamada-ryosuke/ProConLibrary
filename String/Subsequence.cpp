@@ -18,27 +18,19 @@
 //      3 3 3 5 5 7 7 7
 // となる(ここではabcの3文字のみで考えたが、実際は26文字のものが作成される)
 
-class SubsequenceAutomaton {
-private:
-	using Alphabet_t = std::array<int, 26>;
-	using Automaton_t = std::vector<Alphabet_t>;
+std::vector<std::array<int, 26>> subsequenceAutomaton(const std::string& S, const char initial_char = 'a')
+{
+	std::vector<std::array<int, 26>> table(S.size() + 2);
+	std::fill(table.back().begin(), table.back().end(), (int)table.size() - 1);
+	table[table.size() - 2] = table.back();
 
-public:
-	Automaton_t table;
-	
-	SubsequenceAutomaton(const std::string& S, const char initial_char = 'a')
-		: table(S.size() + 2)
+	for (int s_i{(int)S.size() - 1}; s_i >= 0; s_i--)
 	{
-		std::fill(table.back().begin(), table.back().end(), (int)table.size() - 1);
-		table[table.size() - 2] = table.back();
-
-		for (int s_i{(int)S.size() - 1}; s_i >= 0; s_i--)
-		{
-			std::copy(table[s_i + 1].begin(), table[s_i + 1].end(), table[s_i].begin());
-			table[s_i][S[s_i] - initial_char] = s_i + 1;
-		}
+		std::copy(table[s_i + 1].begin(), table[s_i + 1].end(), table[s_i].begin());
+		table[s_i][S[s_i] - initial_char] = s_i + 1;
 	}
-};
+	return std::move(table);
+}
 
 /////////////////
 // 部分列全列挙 //
@@ -48,18 +40,20 @@ public:
 
 class Subsequence {
 private:
+	using Automaton_t = std::vector<std::array<int, 26>>;
+
 	std::stack<int> indices_;
-	SubsequenceAutomaton automaton_;
-	char initial_char_;
+	Automaton_t automaton_;
+	const char initial_char_;
 
 	bool add(int next_c)
 	{
 		for (; next_c < 26; next_c++)
 		{
-			if (automaton_.table[indices_.top()][next_c] == (int)automaton_.table.size() - 1)
+			if (automaton_[indices_.top()][next_c] == (int)automaton_.size() - 1)
 				continue;
 			str.push_back('a' + next_c);
-			indices_.push(automaton_.table[indices_.top()][next_c]);
+			indices_.push(automaton_[indices_.top()][next_c]);
 			return true;
 		}
 		return false;
@@ -69,7 +63,7 @@ public:
 	std::string str;
 
 	Subsequence(std::string& S, const char initial_char = 'a')
-		: automaton_(S, initial_char), initial_char_(initial_char)
+		: automaton_(subsequenceAutomaton(S, initial_char)), initial_char_(initial_char)
 	{
 		indices_.push(0);
 	}
