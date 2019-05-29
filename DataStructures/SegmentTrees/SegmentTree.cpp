@@ -12,16 +12,14 @@
 // モノイドを扱えるが半群は扱えない
 // identityはその演算の単位元としてのみ使用されるので、minの単位元としてINT64_MAXなどが許される
 // std::minをそのまま渡してもオーバーロードを解決できないのでlambda式で包む必要がある
-template <typename T>
+template <typename T, typename Operation_t, typename Update_t>
 class SegmentTree {
 private:
-	using Operation_t = std::function<T(T, T)>;
-	using Update_t = std::function<void(T&, T)>;
 
 	std::vector<T> container_;
 	// モノイドの演算
 	Operation_t operate_;
-	// 内部で第一引数に第二引数を用いた代入操作を行う関数なので、第一引数は参照渡しする必要がある
+	// 更新する値を返す
 	Update_t assign_;
 	// モノイドの単位元
 	T identity_;
@@ -55,7 +53,6 @@ public:
 	{
 		build(array_size);
 	}
-	template<typename Operator_t>
 	SegmentTree(const std::vector<T> &array, Operation_t operate, Update_t assign, T identity)
 		: operate_(operate), assign_(assign), identity_(identity)
 	{
@@ -70,7 +67,7 @@ public:
 	void update(const int index, const T operand)
 	{
 		unsigned int container_i{((unsigned int)container_.size() >> 1) + index};
-		assign_(container_[container_i], operand);
+		container_[container_i] = assign_(container_[container_i], operand);
 		for (container_i >>= 1; container_i > 0; container_i >>= 1)
 			container_[container_i] = operate_(container_[2 * container_i], container_[2 * container_i + 1]);
 	}
@@ -98,6 +95,22 @@ public:
 	}
 };
 
+// 引数のlambda式の型はstd::functionを使うと遅くなるため、クラステンプレートで指定したい。
+// しかしlambda式の型は直接取り出せないため型推論によって型を決定しなければならない。
+// しかしC++14にはクラステンプレートには型推論がないため普通の方法で宣言することはできない。
+// そのため関数の型推論を利用してクラスを作成し、戻り値をautoで受けることで実質的なクラステンプレートの型推論を実現している。
+template <typename T, typename Operation_t, typename Update_t>
+decltype(auto) makeSegmentTree(const unsigned int array_size, Operation_t operate, Update_t assign, T identity)
+{
+	return SegmentTree<T, Operation_t, Update_t>(array_size, operate, assign, identity);
+}
+
+template <typename T, typename Operation_t, typename Update_t>
+decltype(auto) makeSegmentTree(const std::vector<T> &array, Operation_t operate, Update_t assign, T identity)
+{
+	return SegmentTree<T, Operation_t, Update_t>(array, operate, assign, identity);
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////// ここまでコピペ ////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -108,11 +121,13 @@ int main()
 {
 	int n, q;
 	scanf("%d%d", &n, &q);
-	SegmentTree<int64_t> st(n,
+	auto st(
+		makeSegmentTree(n,
 			[](int64_t a, int64_t b){ return std::min(a, b); },
-			[](int64_t &a, int64_t b){ a = b; },
+			[](int64_t a, int64_t b){ return b; },
 			(1ll << 31) - 1
-		);
+		)
+	);
 
 	for (int i{}; i < q; i++)
 	{

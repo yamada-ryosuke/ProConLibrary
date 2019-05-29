@@ -12,13 +12,9 @@
 // 要件は以下
 // Transformation_tはElement_t上の変換全体の集合、(Monoid_t, operate_, identity_)はモノイド
 // 準同型写像homoMorphism:Monoid_t->Transformation_tによりMonid_tとTransformation_tは準同型
-template <typename Element_t, typename Monoid_t>
+template <typename Element_t, typename Monoid_t, typename Operation_t, typename HomoMorphism_t>
 class DualSegmentTree {
 private:
-	using Transformation_t = std::function<Element_t(Element_t)>;
-	using HomoMorphism_t = std::function<Transformation_t(Element_t)>;
-	using Operation_t = std::function<Monoid_t(Monoid_t, Monoid_t)>;
-	
 	const Operation_t operate_;
 	const Monoid_t identity_;
 	const HomoMorphism_t homoMorphism_;
@@ -55,24 +51,10 @@ private:
 		updateHelper(query_l, query_r, added, 2 * node_i + 1, node_m, node_r);
 	}
 
-	// デバッグ用出力関数(中身は適宜編集)
-	void debugOutput()
-	{
-		int line_break{2};
-		for (int i{1}; i < (int)monoid_container_.size(); i++)
-		{
-			std::cout << monoid_container_[i] << ' ';
-			if (i + 1 == line_break)
-			{
-				putchar('\n');
-				line_break *= 2;
-			}
-		}
-	}
-
 public:
 	// initial_elementで要素配列を初期化
-	DualSegmentTree(const unsigned int array_size, const Element_t initial_element,
+	DualSegmentTree(
+		const unsigned int array_size, const Element_t initial_element,
 		const Operation_t operate, const Monoid_t identity,
 		const HomoMorphism_t homoMorphism
 	)
@@ -82,7 +64,8 @@ public:
 		std::fill(element_container_.begin(), element_container_.end(), initial_element);
 	}
 	// initial_arraydで要素配列を初期化
-	DualSegmentTree(const std::vector<Element_t> initial_array,
+	DualSegmentTree(
+		const std::vector<Element_t> initial_array,
 		const Operation_t operate, const Monoid_t identity,
 		const HomoMorphism_t homoMorphism
 	)
@@ -102,16 +85,35 @@ public:
 	{
 		Element_t element{element_container_[index]};
 		for (int monoid_i{((int)monoid_container_.size() >> 1) + index}; monoid_i > 0; monoid_i >>= 1)
-		{
-			auto trans{homoMorphism_(monoid_container_[monoid_i])};
-			element = trans(element);
-		}
+			element = homoMorphism_(monoid_container_[monoid_i])(element);
 
 		return element;
 	}
 };
 
+template <typename Element_t, typename Monoid_t, typename Operation_t, typename HomoMorphism_t>
+decltype(auto) makeDualSegmentTree(
+		const unsigned int array_size, const Element_t initial_element,
+		const Operation_t operate, const Monoid_t identity,
+		const HomoMorphism_t homoMorphism
+	)
+{
+	return DualSegmentTree<Element_t, Monoid_t, Operation_t, HomoMorphism_t>(
+			array_size, initial_element, operate, identity, homoMorphism
+		);
+}
 
+template <typename Element_t, typename Monoid_t, typename Operation_t, typename HomoMorphism_t>
+decltype(auto) makeDualSegmentTree(
+		const std::vector<Element_t> initial_array,
+		const Operation_t operate, const Monoid_t identity,
+		const HomoMorphism_t homoMorphism
+	)
+{
+	return DualSegmentTree<Element_t, Monoid_t, Operation_t, HomoMorphism_t>(
+			initial_array, operate, identity, homoMorphism
+		);
+}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////// ここまでコピペ ////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -120,19 +122,22 @@ int main()
 {
 	int n, q;
 	scanf("%d%d", &n, &q);
-	DualSegmentTree<int64_t, int64_t> dst(n, (1ll << 31) - 1,
-		[](const int64_t left, const int64_t right)
-		{
-			return left >= 0?left:right;
-		},
-		-1,
-		[](const int64_t monoid)
-		{
-			return [=](const int64_t argument)
+	auto dst(
+		makeDualSegmentTree(
+			n, (1ll << 31) - 1,
+			[](const int64_t left, const int64_t right)
 			{
-				return monoid >= 0? monoid: argument;
-			};
-		}
+				return left >= 0?left:right;
+			},
+			-1ll,
+			[](const int64_t monoid)
+			{
+				return [=](const int64_t argument)
+				{
+					return monoid >= 0? monoid: argument;
+				};
+			}
+		)
 	);
 
 	for (int q_i{}; q_i < q; q_i++)
