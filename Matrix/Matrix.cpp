@@ -21,35 +21,47 @@ private:
 	std::vector<RowVector> container_;
 
 public:
-	int N, M;
+	const int N, M;
 	Matrix(const int row_size, const int column_size)
 		: N(row_size), M(column_size), container_(row_size, RowVector(column_size)){}
+	Matrix(Matrix<T>&& mat)
+		: N(mat.N), M(mat.M), container_(std::move(mat.container_)){}
+	Matrix(Matrix<T>& mat)
+		: N(mat.N), M(mat.M), container_(mat.container_){}
 	RowVector& operator[](const int r) { return container_[r]; }
 
 	Matrix<T> operator+(Matrix<T>& mat)
 	{
-		Matrix ret{*this};
-		for (int r_i{}; r_i < (int)container_.size(); r_i++)
-			for (int c_i{}; c_i < (int)container_.front().size(); c_i++)
+		Matrix<T> ret{*this};
+		for (int r_i{}; r_i < N; r_i++)
+			for (int c_i{}; c_i < M; c_i++)
 				ret[r_i][c_i] += mat[r_i][c_i];
-		return ret;
+		return std::move(ret);
 	}
 	Matrix<T> operator-(Matrix<T>& mat)
 	{
-		Matrix ret{*this};
-		for (int r_i{}; r_i < (int)container_.size(); r_i++)
-			for (int c_i{}; c_i < (int)container_.front().size(); c_i++)
+		Matrix<T> ret{*this};
+		for (int r_i{}; r_i < N; r_i++)
+			for (int c_i{}; c_i < M; c_i++)
 				ret[r_i][c_i] -= mat[r_i][c_i];
-		return ret;
+		return std::move(ret);
 	}
 	Matrix<T> operator*(Matrix<T>& mat)
 	{
-		Matrix ret(this->N, mat.M);
+		Matrix<T> ret(this->N, mat.M);
 		for (int r_i{}; r_i < this->N; r_i++)
 			for (int c_i{}; c_i < mat.M; c_i++)
 				for (int l_i{}; l_i < this->M; l_i++)
 					ret[r_i][c_i] += (*this)[r_i][l_i] * mat[l_i][c_i];
-		return ret;
+		return std::move(ret);
+	}
+	std::vector<T> operator*(std::vector<T>& vec)
+	{
+		std::vector<T> ret(N);
+		for (int r_i{}; r_i < N; r_i++)
+			for (int c_i{}; c_i < M; c_i++)
+				ret[r_i] += (*this)[r_i][c_i] * vec[c_i];
+		return std::move(ret);
 	}
 };
 
@@ -69,7 +81,7 @@ int main()
 	for (int i{}; i < m; i++)
 		for (int j{}; j < l; j++)
 			scanf("%lld", &B[i][j]);
-	Matrix<> C = A * B;
+	Matrix<> C(A * B);
 	for (int i{}; i < n; i++)
 		for (int j{}; j < l; j++)
 			printf("%lld%c", C[i][j], j == l - 1? '\n': ' ');
