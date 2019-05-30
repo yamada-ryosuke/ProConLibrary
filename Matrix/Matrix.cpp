@@ -15,7 +15,12 @@ private:
 	public:
 		RowVector(const int column_size)
 			: container_(column_size){}
+		// 要素アクセス
 		T& operator[](const int c) { return container_[c]; }
+		const T& operator[](const int c) const { return container_[c]; }
+		// イテレータ
+		decltype(container_.begin()) begin(){ return container_.begin(); }
+		decltype(container_.end()) end(){ return container_.end(); }
 	};
 
 	std::vector<RowVector> container_;
@@ -29,8 +34,10 @@ public:
 	Matrix(Matrix<T>& mat)
 		: N(mat.N), M(mat.M), container_(mat.container_){}
 	RowVector& operator[](const int r) { return container_[r]; }
+	const RowVector& operator[](const int r) const { return container_[r]; }
 
-	Matrix<T> operator+(Matrix<T>& mat)
+	// 環の演算
+	Matrix<T> operator+(const Matrix<T>& mat) const
 	{
 		Matrix<T> ret{*this};
 		for (int r_i{}; r_i < N; r_i++)
@@ -38,7 +45,7 @@ public:
 				ret[r_i][c_i] += mat[r_i][c_i];
 		return std::move(ret);
 	}
-	Matrix<T> operator-(Matrix<T>& mat)
+	Matrix<T> operator-(const Matrix<T>& mat) const
 	{
 		Matrix<T> ret{*this};
 		for (int r_i{}; r_i < N; r_i++)
@@ -46,7 +53,7 @@ public:
 				ret[r_i][c_i] -= mat[r_i][c_i];
 		return std::move(ret);
 	}
-	Matrix<T> operator*(Matrix<T>& mat)
+	Matrix<T> operator*(const Matrix<T>& mat) const
 	{
 		Matrix<T> ret(this->N, mat.M);
 		for (int r_i{}; r_i < this->N; r_i++)
@@ -55,7 +62,7 @@ public:
 					ret[r_i][c_i] += (*this)[r_i][l_i] * mat[l_i][c_i];
 		return std::move(ret);
 	}
-	std::vector<T> operator*(std::vector<T>& vec)
+	std::vector<T> operator*(const std::vector<T>& vec) const
 	{
 		std::vector<T> ret(N);
 		for (int r_i{}; r_i < N; r_i++)
@@ -63,6 +70,27 @@ public:
 				ret[r_i] += (*this)[r_i][c_i] * vec[c_i];
 		return std::move(ret);
 	}
+
+	// 代入演算子
+	Matrix<T>& operator+=(const Matrix& mat)
+	{
+		*this = *this + mat;
+		return *this;
+	}
+	Matrix<T>& operator-=(const Matrix& mat)
+	{
+		*this = *this - mat;
+		return *this;
+	}
+	Matrix<T>& operator*=(const Matrix& mat)
+	{
+		*this = *this * mat;
+		return *this;
+	}
+
+	// イテレータ
+	decltype(container_.begin()) begin(){ return container_.begin(); }
+	decltype(container_.end()) end(){ return container_.end(); }
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -75,12 +103,12 @@ int main()
 	int n, m, l;
 	scanf("%d%d%d", &n, &m, &l);
 	Matrix<> A(n, m), B(m, l);
-	for (int i{}; i < n; i++)
-		for (int j{}; j < m; j++)
-			scanf("%lld", &A[i][j]);
-	for (int i{}; i < m; i++)
-		for (int j{}; j < l; j++)
-			scanf("%lld", &B[i][j]);
+	for (auto& e: A)
+		for (auto& f: e)
+			scanf("%lld", &f);
+	for (auto& e: B)
+		for (auto& f: e)
+			scanf("%lld", &f);
 	Matrix<> C(A * B);
 	for (int i{}; i < n; i++)
 		for (int j{}; j < l; j++)
