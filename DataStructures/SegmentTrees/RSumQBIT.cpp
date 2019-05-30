@@ -9,7 +9,7 @@
 // Range Sum Query (BIT) //
 ///////////////////////////
 
-class RSQBIT {
+class RSumQBIT {
 private:
 	std::vector<int64_t> container_;
 
@@ -24,7 +24,7 @@ private:
 	}
 
 public:
-	RSQBIT(const int array_size)
+	RSumQBIT(const int array_size)
 		: container_(array_size + 1) {}
 	// indexは0-indexed
 	void update(const int index, const int64_t added)
@@ -48,7 +48,7 @@ int main()
 {
 	int n, q;
 	scanf("%d%d", &n, &q);
-	RSQBIT rsq(n);
+	RSumQBIT rsq(n);
 	for (int i{}; i < q; i++)
 	{
 		int com, x, y;

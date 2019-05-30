@@ -32,20 +32,20 @@ private:
 		container_.resize(2 * length, identity_);
 	}
 
-	// デバッグ用出力関数(中身は適宜編集)
-	void debugOutput()
-	{
-		int line_break{2};
-		for (int i{1}; i < (int)container_.size(); i++)
-		{
-			// std::cout << container_[i] << ' ';
-			if (i + 1 == line_break)
-			{
-				putchar('\n');
-				line_break *= 2;
-			}
-		}
-	}
+	// // デバッグ用出力関数(中身は適宜編集)
+	// void debugOutput()
+	// {
+	// 	int line_break{2};
+	// 	for (int i{1}; i < (int)container_.size(); i++)
+	// 	{
+	// 		// std::cout << container_[i] << ' ';
+	// 		if (i + 1 == line_break)
+	// 		{
+	// 			putchar('\n');
+	// 			line_break *= 2;
+	// 		}
+	// 	}
+	// }
 
 public:
 	SegmentTree(const unsigned int array_size, Operation_t operate, Update_t assign, T identity)

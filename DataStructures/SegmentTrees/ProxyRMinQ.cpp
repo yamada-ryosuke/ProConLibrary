@@ -9,19 +9,20 @@
 // Proxy Range Minimum Query //
 ///////////////////////////////
 
+template<typename T = int64_t>
 class ProxyRMinQ {
 private:
 	// 一点操作用プロキシクラス(更新用)
 	class OnePointProxy {
 	private:
-		ProxyRMinQ& rmq_;
+		ProxyRMinQ<T>& rmq_;
 		const int index_;
 
 	public:
-		OnePointProxy(ProxyRMinQ& rmq, const int index)
+		OnePointProxy(ProxyRMinQ<T>& rmq, const int index)
 			: rmq_(rmq), index_(index){}
 		// 値変更
-		OnePointProxy &operator=(const int64_t assigned)
+		OnePointProxy &operator=(const T assigned)
 		{
 			rmq_.update(index_, assigned);
 			return *this;
@@ -30,18 +31,18 @@ private:
 	// 区間操作用プロキシクラス(取得用)
 	class RangeProxy {
 	private:
-		const ProxyRMinQ& rmq_;
+		const ProxyRMinQ<T>& rmq_;
 		const int left_, right_;
 
 	public:
-		RangeProxy(const ProxyRMinQ& rmq, const std::initializer_list<int>& span)
+		RangeProxy(const ProxyRMinQ<T>& rmq, const std::initializer_list<int>& span)
 			: rmq_(rmq), left_(*span.begin()), right_(*(span.begin() + 1)){}
 		// 取得
-		operator int64_t() const { return rmq_.get(left_, right_); }
+		operator T() const { return rmq_.get(left_, right_); }
 	};
 
-	std::vector<int64_t> container_;
-	const int64_t inf_{LLONG_MAX};
+	std::vector<T> container_;
+	const T inf_{LLONG_MAX};
 
 	void build(const unsigned int array_size)
 	{
@@ -53,7 +54,7 @@ private:
 
 public:
 	ProxyRMinQ(const unsigned int array_size) { build(array_size); }
-	ProxyRMinQ(const std::vector<int64_t> &array)
+	ProxyRMinQ(const std::vector<T> &array)
 	{
 		build(array.size());
 		std::copy(array.begin(), array.end(), container_.begin() + array.size());
@@ -61,7 +62,7 @@ public:
 			container_[i] = std::min(container_[2 * i], container_[2 * i + 1]);
 	}
 	// 引数は0-indexed
-	void update(const int index, const int64_t assigned)
+	void update(const int index, const T assigned)
 	{
 		auto update_place{(container_.size() >> 1) + index};
 		container_[update_place] = assigned;
@@ -72,9 +73,9 @@ public:
 		}
 	}
 	// 引数は0-indexed、[l, r)の半開区間
-	int64_t get(const int left, const int right) const
+	T get(const int left, const int right) const
 	{
-		int64_t min{inf_};
+		T min{inf_};
 		for (int left_i{std::max(0, left) + ((int)container_.size() >> 1)}, right_i{std::min((int)container_.size() >> 1, right) + ((int)container_.size() >> 1)};
 			left_i < right_i; left_i >>= 1, right_i >>= 1
 			)
@@ -100,7 +101,7 @@ public:
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////// ここからコピペ ////////////////////////////////////////////////
+/////////////////////////////////////////// ここまでコピペ ////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -109,7 +110,7 @@ int main()
 {
 	int n, q;
 	scanf("%d%d", &n, &q);
-	ProxyRMinQ rmq(n);
+	ProxyRMinQ<> rmq(n);
 	for (int i{}; i < q; i++)
 	{
 		int com, x, y;

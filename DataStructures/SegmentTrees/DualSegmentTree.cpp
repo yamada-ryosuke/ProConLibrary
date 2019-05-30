@@ -11,7 +11,7 @@
 
 // 要件は以下
 // Transformation_tはElement_t上の変換全体の集合、(Monoid_t, operate_, identity_)はモノイド
-// 準同型写像homoMorphism:Monoid_t->Transformation_tによりMonid_tとTransformation_tは準同型
+// 準同型写像homoMorphism:Monoid_t->Transformation_tによりMonoid_tとTransformation_tは準同型
 template <typename Element_t, typename Monoid_t, typename Operation_t, typename HomoMorphism_t>
 class DualSegmentTree {
 private:
@@ -63,7 +63,7 @@ public:
 		build(array_size);
 		std::fill(element_container_.begin(), element_container_.end(), initial_element);
 	}
-	// initial_arraydで要素配列を初期化
+	// initial_arrayで要素配列を初期化
 	DualSegmentTree(
 		const std::vector<Element_t> initial_array,
 		const Operation_t operate, const Monoid_t identity,

@@ -9,10 +9,11 @@
 // Range Update Range Minimum Query //
 //////////////////////////////////////
 
-class RURMinQ {
+template<typename T = int64_t>
+class RUpdRMinQ {
 private:
-	std::vector<int64_t> real_container_, lazy_container_;
-	const int64_t inf_{LLONG_MAX};
+	std::vector<T> real_container_, lazy_container_;
+	const T inf_{LLONG_MAX};
 
 	void build(const unsigned int array_size)
 	{
@@ -53,34 +54,34 @@ private:
 		}
 	}
 
-	// デバッグ用出力関数(中身は適宜編集)
-	void debugOutput()
-	{
-		int line_break{2};
-		for (int i{1}; i < (int)real_container_.size(); i++)
-		{
-			std::cout << real_container_[i] << ' ';
-			if (i + 1 == line_break)
-			{
-				putchar('\n');
-				line_break *= 2;
-			}
-		}
-		line_break = 2;
-		for (int i{1}; i < (int)real_container_.size(); i++)
-		{
-			std::cout << lazy_container_[i] << ' ';
-			if (i + 1 == line_break)
-			{
-				putchar('\n');
-				line_break *= 2;
-			}
-		}
-	}
+	// // デバッグ用出力関数(中身は適宜編集)
+	// void debugOutput()
+	// {
+	// 	int line_break{2};
+	// 	for (int i{1}; i < (int)real_container_.size(); i++)
+	// 	{
+	// 		std::cout << real_container_[i] << ' ';
+	// 		if (i + 1 == line_break)
+	// 		{
+	// 			putchar('\n');
+	// 			line_break *= 2;
+	// 		}
+	// 	}
+	// 	line_break = 2;
+	// 	for (int i{1}; i < (int)real_container_.size(); i++)
+	// 	{
+	// 		std::cout << lazy_container_[i] << ' ';
+	// 		if (i + 1 == line_break)
+	// 		{
+	// 			putchar('\n');
+	// 			line_break *= 2;
+	// 		}
+	// 	}
+	// }
 
 public:
-	RURMinQ(const unsigned int array_size) { build(array_size); }
-	RURMinQ(const std::vector<int64_t> &array)
+	RUpdRMinQ(const unsigned int array_size) { build(array_size); }
+	RUpdRMinQ(const std::vector<T> &array)
 	{
 		build(array.size());
 		std::copy(array.begin(), array.end(), real_container_.begin() + (real_container_.size() >> 1));
@@ -88,19 +89,19 @@ public:
 			real_container_[i] = std::min(real_container_[2 * i], real_container_[2 * i + 1]);
 	}
 	// left,rightは0-indexed、[left, right)の半開区間
-	void update(const int left, const int right, const int64_t assigned)
+	void update(const int left, const int right, const T assigned)
 	{
 		updateHelper(left, right, assigned, 1, 0, (int)real_container_.size() >> 1);
 	}
 	// left,rightは0-indexed、[left, right)の半開区間
-	int64_t get(const int left, const int right)
+	T get(const int left, const int right)
 	{
 		// ノードの番号、左端、右端
 		using NodeInfo = std::array<int, 3>;
 		std::stack<NodeInfo> pre_added;
 		pre_added.push({1, 0, (int)real_container_.size() >> 1});
 
-		int64_t min{inf_};
+		T min{inf_};
 		while (!pre_added.empty())
 		{
 			NodeInfo added{pre_added.top()};
@@ -136,7 +137,7 @@ int main()
 {
 	int n, q;
 	scanf("%d%d", &n, &q);
-	RURMinQ rurmq(n);
+	RUpdRMinQ<> rurmq(n);
 	for (int i{}; i < q; i++)
 	{
 		int com;

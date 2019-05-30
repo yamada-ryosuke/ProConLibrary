@@ -9,12 +9,13 @@
 // Range Add Range Sum Query //
 ///////////////////////////////
 
-class RARSQ {
+template<typename T = int64_t>
+class RAddRSumQ {
 private:
 	// ノードの番号、左端、右端
 	using NodeInfo = std::array<int, 3>;
 
-	std::vector<long long> added_container_, sum_container_;
+	std::vector<T> added_container_, sum_container_;
 
 	void build(const unsigned int array_size)
 	{
@@ -38,8 +39,8 @@ private:
 	}
 
 public:
-	RARSQ(const unsigned int array_size) { build(array_size); }
-	RARSQ(const std::vector<long long> &array)
+	RAddRSumQ(const unsigned int array_size) { build(array_size); }
+	RAddRSumQ(const std::vector<T> &array)
 	{
 		build(array.size());
 		std::copy(array.begin(), array.end(), added_container_.begin() + (added_container_.size() >> 1));
@@ -49,7 +50,7 @@ public:
 			sum_container_[i] = std::min(sum_container_[2 * i], sum_container_[2 * i + 1]);
 	}
 	// [left,right)の半開区間(0-indexed)にaddedを加算
-	void update(const int left, const int right, const long long added)
+	void update(const int left, const int right, const T added)
 	{
 		std::stack<NodeInfo> pre_added;
 		pre_added.push({1, 0, (int)sum_container_.size() >> 1});
@@ -69,12 +70,12 @@ public:
 		}
 	}
 	// left,rightは0-indexed、[left, right)の半開区間
-	long long get(const int left, const int right)
+	T get(const int left, const int right)
 	{
 		std::stack<NodeInfo> pre_added;
 		pre_added.push({1, 0, (int)sum_container_.size() >> 1});
 
-		long long sum{};
+		T sum{};
 		while (!pre_added.empty())
 		{
 			NodeInfo node{pre_added.top()};
@@ -104,7 +105,7 @@ int main()
 {
 	int n, q;
 	scanf("%d%d", &n, &q);
-	RARSQ lrsq(n);
+	RAddRSumQ<> lrsq(n);
 	
 	for (int q_i{}; q_i < q; q_i++)
 	{

@@ -5,13 +5,14 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-/////////////////////////
+/////////////////////
 // Range Add Query //
-/////////////////////////
+/////////////////////
 
-class RAQ {
+template<typename T = int64_t>
+class RAddQ {
 private:
-	std::vector<int64_t> container_;
+	std::vector<T> container_;
 
 	void build(const unsigned int array_size)
 	{
@@ -22,8 +23,8 @@ private:
 	}
 
 public:
-	RAQ(const unsigned int array_size) { build(array_size); }
-	RAQ(const std::vector<int64_t> &array)
+	RAddQ(const unsigned int array_size) { build(array_size); }
+	RAddQ(const std::vector<T> &array)
 	{
 		build(array.size());
 		std::copy(array.begin(), array.end(), container_.begin() + (container_.size() >> 1));
@@ -31,7 +32,7 @@ public:
 			container_[i] = container_[2 * i] + container_[2 * i + 1];
 	}
 	// left,rightは0-indexed、[left, right)の半開区間
-	void update(const int left, const int right, const int64_t added)
+	void update(const int left, const int right, const T added)
 	{
 		for (int left_i{std::max(0, left) + ((int)container_.size() >> 1)}, right_i{std::min((int)container_.size() >> 1, right) + ((int)container_.size() >> 1)};
 			left_i < right_i; left_i >>= 1, right_i >>= 1
@@ -50,9 +51,9 @@ public:
 		}
 	}
 	// indexは0-indexed
-	int64_t get(const int index) const
+	T get(const int index) const
 	{
-		int64_t sum{};
+		T sum{};
 		for (int add_place{index + ((int)container_.size() >> 1)}; add_place > 0; add_place >>= 1)
 			sum += container_[add_place];
 		return sum;
@@ -70,7 +71,7 @@ int main()
 	int n, q;
 	scanf("%d%d", &n, &q);
 
-	RAQ raq(n);
+	RAddQ<> raq(n);
 	for (int q_i{}; q_i < q; q_i++)
 	{
 		int com;
