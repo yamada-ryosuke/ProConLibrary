@@ -75,23 +75,23 @@ public:
 	// 配列内の半開区間[l,r)(0-indexed)の総和を返す
 	T get(const int left, const int right) const
 	{
-		T sum{identity_};
+		T left_sum{identity_}, right_sum{identity_};
 		for (int left_i{std::max(0, left) + ((int)container_.size() >> 1)}, right_i{std::min((int)container_.size() >> 1, right) + ((int)container_.size() >> 1)};
 			left_i < right_i; left_i >>= 1, right_i >>= 1
 			)
 		{
 			if (left_i & 1)
 			{
-				sum = operate_(sum, container_[left_i]);
+				left_sum = operate_(left_sum, container_[left_i]);
 				left_i++;
 			}
 			if (right_i & 1)
 			{
 				right_i--;
-				sum = operate_(sum, container_[right_i]);
+				right_sum = operate_(container_[right_i], right_sum);
 			}
 		}
-		return sum;
+		return operate_(left_sum, right_sum);
 	}
 };
 
