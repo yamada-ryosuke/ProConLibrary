@@ -13,33 +13,26 @@
 template<typename T = int64_t>
 class Matrix {
 private:
-	class RowVector {
-	private:
-		std::vector<T> container_;
-	
-	public:
-		RowVector(const int column_size)
-			: container_(column_size){}
-		// 要素アクセス
-		T& operator[](const int c) { return container_[c]; }
-		const T& operator[](const int c) const { return container_[c]; }
-		// イテレータ
-		decltype(container_.begin()) begin(){ return container_.begin(); }
-		decltype(container_.end()) end(){ return container_.end(); }
-	};
+	using RowVector = std::vector<T>;
 
 	std::vector<RowVector> container_;
 
 public:
 	const int N, M;
+
 	Matrix(const int row_size, const int column_size)
 		: N(row_size), M(column_size), container_(row_size, RowVector(column_size)){}
 	Matrix(Matrix<T>&& mat)
 		: N(mat.N), M(mat.M), container_(std::move(mat.container_)){}
 	Matrix(Matrix<T>& mat)
 		: N(mat.N), M(mat.M), container_(mat.container_){}
+
+	// 要素アクセス
 	RowVector& operator[](const int r) { return container_[r]; }
 	const RowVector& operator[](const int r) const { return container_[r]; }
+	// イテレータ
+	typename decltype(container_)::iterator begin(){ return container_.begin(); }
+	typename decltype(container_)::iterator end(){ return container_.end(); }
 
 	// 環の演算
 	Matrix<T> operator+(const Matrix<T>& mat) const
@@ -92,10 +85,6 @@ public:
 		*this = *this * mat;
 		return *this;
 	}
-
-	// イテレータ
-	decltype(container_.begin()) begin(){ return container_.begin(); }
-	decltype(container_.end()) end(){ return container_.end(); }
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
