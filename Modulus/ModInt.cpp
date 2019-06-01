@@ -47,7 +47,7 @@ public:
 				ret = ret * pow_ope % mod_;
 			pow_ope = pow_ope * pow_ope % mod_;
 		}
-		return ModInt(ret);
+		return (*this) * ModInt(ret);
 	}
 
 	// 代入
