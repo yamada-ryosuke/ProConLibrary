@@ -6,69 +6,69 @@ private:
 	int64_t integer_;
 
 public:
-	ModInt(const int64_t initial_number = 0)
+	constexpr ModInt(const int64_t initial_number = 0)
 		: integer_(initial_number){}
 	
 	// 四則演算
-	ModInt operator+(const int64_t operand)
+	constexpr ModInt operator+(const ModInt& operand) const
 	{
-		int64_t ret{integer_ + operand};
-		if (ret >= mod_)
-			ret -= mod_;
-		return ModInt(ret);
+		ModInt ret{this->integer_ + operand.integer_};
+		if (ret.integer_ >= mod_)
+			ret.integer_ -= mod_;
+		return ret;
 	}
-	ModInt operator-(const int64_t operand)
+	constexpr ModInt operator-(const ModInt& operand) const
 	{
-		int64_t ret{integer_ - operand};
-		if (ret < 0)
-			ret += mod_;
-		return ModInt(ret);
+		ModInt ret{this->integer_ - operand.integer_};
+		if (ret.integer_ < 0)
+			ret.integer_ += mod_;
+		return ret;
 	}
-	ModInt operator*(const int64_t operand)
+	constexpr ModInt operator*(const ModInt& operand) const
 	{
-		return ModInt(integer_ * operand % mod_);
+		return {this->integer_ * operand.integer_ % mod_};
 	}
-	ModInt operator/(const int64_t operand)
+	constexpr ModInt operator/(const ModInt& operand) const
 	{
-		int64_t ret{1}, pow_ope{operand};
+		ModInt ret{this->integer_}, pow_ope{operand.integer_};
 		for (int64_t pow_mod{mod_ - 2}; pow_mod > 0; pow_mod >>= 1)
 		{
 			if (pow_mod & 1)
-				ret = ret * pow_ope % mod_;
-			pow_ope = pow_ope * pow_ope % mod_;
+				ret *= pow_ope;
+			pow_ope *= pow_ope;
 		}
-		return ModInt(ret);
+		return ret;
 	}
 
 	// 代入
-	ModInt& operator=(const int64_t operand)
+	constexpr ModInt& operator=(const ModInt& operand)
 	{
-		integer_ = operand;
+		this->integer_ = operand.integer_;
 		return *this;
 	}
-	ModInt& operator+=(const int64_t operand)
+	constexpr ModInt& operator+=(const ModInt& operand)
 	{
 		*this = *this + operand;
 		return *this;
 	}
-	ModInt& operator-=(const int64_t operand)
+	constexpr ModInt& operator-=(const ModInt& operand)
 	{
 		*this = *this - operand;
 		return *this;
 	}
-	ModInt& operator*=(const int64_t operand)
+	constexpr ModInt& operator*=(const ModInt& operand)
 	{
 		*this = *this * operand;
 		return *this;
 	}
-	ModInt& operator/=(const int64_t operand)
+	constexpr ModInt& operator/=(const ModInt& operand)
 	{
 		*this = *this / operand;
 		return *this;
 	}
 
 	// その他
-	operator int64_t() { return integer_; }
+	constexpr operator int64_t() { return integer_; }
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -79,16 +79,15 @@ public:
 // 組み合わせ //
 ///////////////
 
-template<int64_t mod_ = 1'000'000'007>
+template<int64_t mod_ = 1'000'000'007, int max_ = 200'000>
 class Combination {
 public:
-	std::vector<ModInt<mod_>> inv, fact, finv;
+	std::array<ModInt<mod_>, max_ + 1> inv, fact, finv;
 
-	Combination(const int max = 200'000)
-		: inv(max + 1), fact(max + 1), finv(max + 1)
+	constexpr Combination()
 	{
 		inv[0] = inv[1] = fact[0] = fact[1] = finv[0] = finv[1] = 1;
-		for (int num{2}; num <= max; num++)
+		for (int num{2}; num <= max_; num++)
 		{
 			inv[num] = (mod_ - (int64_t)inv[mod_ % num] * (mod_ / num) % mod_) % mod_;
 			fact[num] = num * fact[num - 1] % mod_;
@@ -96,18 +95,19 @@ public:
 		}
 	}
 
-	int64_t getCombi(const int n, const int r)
+	constexpr ModInt<mod_> getCombi(const int n, const int r)
 	{
 		if (r < 0 || n < 0 || n - r < 0) return 0;
 		return fact[n] * finv[r] * finv[n - r];
 	}
 
-	int64_t getPerm(const int n, const int r)
+	constexpr ModInt<mod_> getPerm(const int n, const int r)
 	{
 		if (r < 0 || n < 0 || n - r < 0) return 0;
 		return fact[n] * finv[n - r];
 	}
 };
+Combination<> combi;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////// ここまでコピペ ////////////////////////////////////////////////
@@ -115,7 +115,6 @@ public:
 
 int main()
 {
-	Combination<> combi;
 	for (int i{}; i < 10; i++)
 	{
 		printf("%lld, %lld, %lld\n", (int64_t)combi.inv[i], (int64_t)combi.fact[i], (int64_t)combi.finv[i]);

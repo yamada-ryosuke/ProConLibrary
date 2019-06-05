@@ -16,69 +16,69 @@ private:
 	int64_t integer_;
 
 public:
-	ModInt(const int64_t initial_number = 0)
+	constexpr ModInt(const int64_t initial_number = 0)
 		: integer_(initial_number){}
 	
 	// 四則演算
-	ModInt operator+(const int64_t operand)
+	constexpr ModInt operator+(const ModInt& operand) const
 	{
-		int64_t ret{integer_ + operand};
-		if (ret >= mod_)
-			ret -= mod_;
-		return ModInt(ret);
+		ModInt ret{this->integer_ + operand.integer_};
+		if (ret.integer_ >= mod_)
+			ret.integer_ -= mod_;
+		return ret;
 	}
-	ModInt operator-(const int64_t operand)
+	constexpr ModInt operator-(const ModInt& operand) const
 	{
-		int64_t ret{integer_ - operand};
-		if (ret < 0)
-			ret += mod_;
-		return ModInt(ret);
+		ModInt ret{this->integer_ - operand.integer_};
+		if (ret.integer_ < 0)
+			ret.integer_ += mod_;
+		return ret;
 	}
-	ModInt operator*(const int64_t operand)
+	constexpr ModInt operator*(const ModInt& operand) const
 	{
-		return ModInt(integer_ * operand % mod_);
+		return {this->integer_ * operand.integer_ % mod_};
 	}
-	ModInt operator/(const int64_t operand)
+	constexpr ModInt operator/(const ModInt& operand) const
 	{
-		int64_t ret{1}, pow_ope{operand};
+		ModInt ret{this->integer_}, pow_ope{operand.integer_};
 		for (int64_t pow_mod{mod_ - 2}; pow_mod > 0; pow_mod >>= 1)
 		{
 			if (pow_mod & 1)
-				ret = ret * pow_ope % mod_;
-			pow_ope = pow_ope * pow_ope % mod_;
+				ret *= pow_ope;
+			pow_ope *= pow_ope;
 		}
-		return (*this) * ModInt(ret);
+		return ret;
 	}
 
 	// 代入
-	ModInt& operator=(const int64_t operand)
+	constexpr ModInt& operator=(const ModInt& operand)
 	{
-		integer_ = operand;
+		this->integer_ = operand.integer_;
 		return *this;
 	}
-	ModInt& operator+=(const int64_t operand)
+	constexpr ModInt& operator+=(const ModInt& operand)
 	{
 		*this = *this + operand;
 		return *this;
 	}
-	ModInt& operator-=(const int64_t operand)
+	constexpr ModInt& operator-=(const ModInt& operand)
 	{
 		*this = *this - operand;
 		return *this;
 	}
-	ModInt& operator*=(const int64_t operand)
+	constexpr ModInt& operator*=(const ModInt& operand)
 	{
 		*this = *this * operand;
 		return *this;
 	}
-	ModInt& operator/=(const int64_t operand)
+	constexpr ModInt& operator/=(const ModInt& operand)
 	{
 		*this = *this / operand;
 		return *this;
 	}
 
 	// その他
-	operator int64_t() { return integer_; }
+	constexpr operator int64_t() { return integer_; }
 };
 
 
@@ -88,10 +88,10 @@ public:
 
 int main()
 {
-	ModInt<> a(400'000), b(500'000);
+	constexpr ModInt<> a(400'000), b(500'000);
 	printf("%lld\n", (int64_t)(a * b));
 
-	ModInt<> c(1);
+	constexpr ModInt<> c(1);
 	printf("%lld\n", (int64_t)(c / 3ll));
 	
 	ModInt<> d(400'000);
