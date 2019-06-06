@@ -40,11 +40,16 @@ public:
 	}
 	constexpr ModInt operator/(const ModInt& operand) const
 	{
-		ModInt ret{this->integer_}, pow_ope{operand.integer_};
-		for (int64_t pow_mod{mod_ - 2}; pow_mod > 0; pow_mod >>= 1)
+		return *this * (operand ^ (mod_ - 2));
+	}
+
+	// 累乗
+	constexpr ModInt operator^(const int64_t operand) const
+	{
+		ModInt ret{1}, pow_ope{this->integer_};
+		for (int64_t pow{operand}; pow > 0; pow >>= 1)
 		{
-			if (pow_mod & 1)
-				ret *= pow_ope;
+			if (pow & 1) ret *= pow_ope;
 			pow_ope *= pow_ope;
 		}
 		return ret;
