@@ -62,6 +62,10 @@ public:
 		for (unsigned int i{(container_.size() >> 1) - 1}; i > 0; i--)
 			container_[i] = operate_(container_[2 * i], container_[2 * i + 1]);
 	}
+	SegmentTree(const SegmentTree& st)
+		: container_(st.container_), operate_(st.operate_), assign_(st.assign_), identity_(st.identity_){}
+	SegmentTree(SegmentTree&& st)
+		: container_(std::move(st.container_)), operate_(st.operate_), assign_(st.assign_), identity_(st.identity_){}
 
 	// 配列のindex(0-indexed)の要素にoperandを代入
 	void update(const int index, const T operand)

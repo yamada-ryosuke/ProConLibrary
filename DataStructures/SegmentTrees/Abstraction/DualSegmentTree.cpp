@@ -61,6 +61,10 @@ public:
 	{
 		build(array_size);
 	}
+	DualSegmentTree(const DualSegmentTree& dst)
+		: container_(dst.container_), operate_(dst.operate_), identity_(dst.identity_), homoMorphism_(dst.homoMorphism_){}
+	DualSegmentTree(DualSegmentTree&& dst)
+		: container_(std::move(dst.container_)), operate_(dst.operate_), identity_(dst.identity_), homoMorphism_(dst.homoMorphism_){}
 
 	// left,rightは0-indexed、半開区間[left,right)にhomoMorphism(operate)を施す
 	void update(const int left, const int right, const Monoid_t added)
