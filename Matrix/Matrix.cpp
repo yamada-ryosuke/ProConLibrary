@@ -76,7 +76,7 @@ public:
 	{
 		Matrix<T> ret(M, M), pow(*this);
 		for (int i{}; i < M; i++)
-			ret[i][i] = 1ll;
+			ret[i][i] = ret[i][i].getOne();
 		for (int64_t i{index}; i > 0; i >>= 1)
 		{
 			if (i & 1)

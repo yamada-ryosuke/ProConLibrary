@@ -80,6 +80,15 @@ public:
 
 	// その他
 	constexpr operator int64_t() { return integer_; }
+
+	constexpr ModInt getOne() const
+	{
+		return ModInt(1ll);
+	}
+	constexpr ModInt getZero() const
+	{
+		return ModInt(0ll);
+	}
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
