@@ -23,10 +23,10 @@ public:
 	Matrix(const int row_size, const int column_size)
 		: M(row_size), N(column_size), container_(row_size, RowVector(column_size)){}
 	// ムーブコンストラクタ
-	Matrix(Matrix<T>&& mat)
+	Matrix(Matrix&& mat)
 		: M(mat.M), N(mat.N), container_(std::move(mat.container_)){}
 	// コピーコンストラクタ
-	Matrix(Matrix<T>& mat)
+	Matrix(Matrix& mat)
 		: M(mat.M), N(mat.N), container_(mat.container_){}
 
 	// 要素アクセス
@@ -37,25 +37,25 @@ public:
 	typename decltype(container_)::iterator end(){ return container_.end(); }
 
 	// 環の演算
-	Matrix<T> operator+(const Matrix<T>& mat) const
+	Matrix operator+(const Matrix& mat) const
 	{
-		Matrix<T> ret{*this};
+		Matrix ret{*this};
 		for (int r_i{}; r_i < M; r_i++)
 			for (int c_i{}; c_i < N; c_i++)
 				ret[r_i][c_i] += mat[r_i][c_i];
 		return std::move(ret);
 	}
-	Matrix<T> operator-(const Matrix<T>& mat) const
+	Matrix operator-(const Matrix& mat) const
 	{
-		Matrix<T> ret{*this};
+		Matrix ret{*this};
 		for (int r_i{}; r_i < M; r_i++)
 			for (int c_i{}; c_i < N; c_i++)
 				ret[r_i][c_i] -= mat[r_i][c_i];
 		return std::move(ret);
 	}
-	Matrix<T> operator*(const Matrix<T>& mat) const
+	Matrix operator*(const Matrix& mat) const
 	{
-		Matrix<T> ret(this->M, mat.N);
+		Matrix ret(this->M, mat.N);
 		for (int r_i{}; r_i < this->M; r_i++)
 			for (int c_i{}; c_i < mat.N; c_i++)
 				for (int l_i{}; l_i < this->N; l_i++)
@@ -72,11 +72,9 @@ public:
 	}
 
 	// 累乗
-	Matrix<T> operator^(const int64_t index)
+	Matrix operator^(const int64_t index)
 	{
-		Matrix<T> ret(M, M), pow(*this);
-		for (int i{}; i < M; i++)
-			ret[i][i] = ret[i][i].getOne();
+		Matrix ret((*this).getOne()), pow(*this);
 		for (int64_t i{index}; i > 0; i >>= 1)
 		{
 			if (i & 1)
@@ -87,25 +85,38 @@ public:
 	}
 
 	// 代入演算子
-	Matrix<T>& operator=(const Matrix& mat)
+	Matrix& operator=(const Matrix& mat)
 	{
 		this->container_ = mat.container_;
 		return *this;
 	}	
-	Matrix<T>& operator+=(const Matrix& mat)
+	Matrix& operator+=(const Matrix& mat)
 	{
 		*this = *this + mat;
 		return *this;
 	}
-	Matrix<T>& operator-=(const Matrix& mat)
+	Matrix& operator-=(const Matrix& mat)
 	{
 		*this = *this - mat;
 		return *this;
 	}
-	Matrix<T>& operator*=(const Matrix& mat)
+	Matrix& operator*=(const Matrix& mat)
 	{
 		*this = *this * mat;
 		return *this;
+	}
+
+	// ゼロ行列と単位行列
+	constexpr Matrix getOne() const
+	{
+		Matrix ret(M, N);
+		for (int i{}; i < N; i++)
+			ret[i][i] = ret[i][i].getOne();
+		return std::move(ret);
+	}
+	constexpr Matrix getZero() const
+	{
+		return Matrix(M, N);
 	}
 };
 
