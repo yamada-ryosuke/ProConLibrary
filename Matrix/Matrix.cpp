@@ -17,6 +17,10 @@ private:
 
 	std::vector<RowVector> container_;
 
+	// 必要に応じて書換
+	const T ring_one{1ll};
+	const T ring_zero{};
+
 public:
 	const int M, N;
 
@@ -111,7 +115,7 @@ public:
 	{
 		Matrix ret(M, N);
 		for (int i{}; i < N; i++)
-			ret[i][i] = ret[i][i].getOne();
+			ret[i][i] = ring_one;
 		return std::move(ret);
 	}
 	constexpr Matrix getZero() const
@@ -124,7 +128,7 @@ public:
 /////////////////////////////////////////// ここまでコピペ ////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=3035
+// http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ITP1_7_D&lang=jp
 int main()
 {
 	int n, m, l;
