@@ -1,5 +1,14 @@
 #include <bits/stdc++.h>
 
+struct Edge {
+	int to;
+	// int64_t dist{1};
+
+	// int64_t cost;
+	// int from;
+	// int rev_i;
+};
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////// ここからコピペ ////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -12,10 +21,13 @@
 class SCC {
 private:
 	using vi = std::vector<int>;
-	using v2i = std::vector<vi>;
+	using vvi = std::vector<vi>;
+	using ve = std::vector<Edge>;
+	using Adjacent = std::vector<ve>;
 	using vb = std::vector<bool>;
 
-	v2i edge_, revEdge_, componentElements_;
+	const Adjacent& edge_;
+	vvi componentElements_, revEdge_;
 	vi belongTo_;
 
 	void backTrack(const int index, vi& revOrder, vb& visited)
@@ -23,7 +35,7 @@ private:
 		if (visited[index]) return;
 		visited[index] = true;
 		for (const auto& next: edge_[index])
-			backTrack(next, revOrder, visited);
+			backTrack(next.to, revOrder, visited);
 		revOrder.push_back(index);
 	}
 	void assignComponent(const int index)
@@ -37,16 +49,15 @@ private:
 
 public:
 	const vi& belongTo;
-	const v2i componentElements;
+	const vvi& componentElements;
 
-	template<typename Adjacent>
-	SCC(Adjacent&& adjacentList)
-		: edge_(std::forward<Adjacent>(adjacentList)), belongTo(belongTo_), componentElements(componentElements_)
+	SCC(const Adjacent& adjacentList)
+		: edge_(adjacentList), belongTo(belongTo_), componentElements(componentElements_)
 	{
 		revEdge_.resize(edge_.size());
 		for (int i{}; i < (int)edge_.size(); i++)
 			for (const auto& vertex: edge_[i])
-				revEdge_[vertex].push_back(i);
+				revEdge_[vertex.to].push_back(i);
 
 		vb visited(edge_.size());
 		vi revOrder;
@@ -55,7 +66,7 @@ public:
 			backTrack(i, revOrder, visited);
 
 		belongTo_.resize(edge_.size(), -1);
-		for (int i{(int)revOrder.size() - 1}; i >= 0; i--)	
+		for (int i{(int)revOrder.size() - 1}; i >= 0; i--)
 		{
 			const int index{revOrder[i]};
 			if (belongTo_[index] >= 0) continue;
@@ -64,14 +75,14 @@ public:
 		}
 	}
 
-	v2i makeDAG()
+	vvi makeDAG()
 	{
 		std::set<std::pair<int, int>> added;
-		v2i dagList(edge_.size());
+		vvi dagList(edge_.size());
 		for (int from_i{}; from_i < (int)edge_.size(); from_i++)
-			for (const auto& to_i: edge_[from_i])
+			for (const auto& to_e: edge_[from_i])
 			{
-				const int dag_from{belongTo[from_i]}, dag_to{belongTo[to_i]};
+				const int dag_from{belongTo[from_i]}, dag_to{belongTo[to_e.to]};
 				if (dag_from == dag_to || added.find({dag_from, dag_to}) != added.end())
 					continue;
 				dagList[dag_from].push_back(dag_to);
@@ -90,15 +101,15 @@ int main()
 {
 	int V, E;
 	scanf("%d%d", &V, &E);
-	using vi = std::vector<int>;
-	std::vector<vi> edge(V);
+	using ve = std::vector<Edge>;
+	std::vector<ve> edges(V);
 	for (int i{}; i < E; i++)
 	{
 		int s, t;
 		scanf("%d%d", &s, &t);
-		edge[s].push_back(t);
+		edges[s].push_back({t});
 	}
-	SCC scc(std::move(edge));
+	SCC scc(edges);
 	int Q;
 	scanf("%d", &Q);
 	for (int i{}; i < Q; i++)
