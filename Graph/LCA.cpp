@@ -13,7 +13,11 @@ struct Edge {
 /////////////////////////////////////////// ここからコピペ ////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// コンストラクタに渡すのは子に向かう有向グラフでも無向グラフでもいい
+///////////////////////
+// 最近共通祖先クエリ //
+//////////////////////
+
+// コンストラクタに渡す木は子に向かう有向グラフでも無向グラフでもいい
 class LCA {
 private:
 	using ve = std::vector<Edge>;
@@ -26,13 +30,13 @@ private:
 	vi depthList_;
 	const int root_;
 
-	void dfs(const int index, const int parent, const int depth)
+	void initDFS(const int index, const int parent, const int depth)
 	{
 		ancestors_[index].front() = parent;
 		depthList_[index] = depth;
 		for (auto& e: edges_[index])
 			if (e.to != parent)
-				dfs(e.to, index, depth + 1);
+				initDFS(e.to, index, depth + 1);
 	}
 	
 public:
@@ -45,7 +49,7 @@ public:
 		while (1 << (size - 1) <= (int)edges_.size()) size++;
 		ancestors_.resize(edges_.size(), vi(size));
 		depthList_.resize(edges_.size());
-		dfs(root_, root_, 0);
+		initDFS(root_, root_, 0);
 		for (int i{1}; i < size; i++)
 			for (auto& e: ancestors_)
 				e[i] = ancestors_[e[i - 1]][i - 1];
