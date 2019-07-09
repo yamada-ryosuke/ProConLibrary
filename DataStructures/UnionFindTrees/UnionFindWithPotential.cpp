@@ -105,3 +105,27 @@ int main()
 
 	return 0;
 }
+
+// // http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=DSL_1_B&lang=jp
+// int main()
+// {
+// 	int n, q;
+// 	scanf("%d%d", &n, &q);
+// 	UnionFindWithPotential ufp(n);
+// 	for (int q_i{}; q_i < q; q_i++)
+// 	{
+// 		int query, x, y;
+// 		scanf("%d%d%d", &query, &x, &y);
+// 		if (query == 0)
+// 		{
+// 			int z;
+// 			scanf("%d", &z);
+// 			ufp.unite(y, x, z);
+// 		}
+// 		else if (ufp.areConnected(x, y))
+// 			printf("%lld\n", ufp.calcDiff(y, x));
+// 		else
+// 			puts("?");
+// 	}
+// 	return 0;
+// }
