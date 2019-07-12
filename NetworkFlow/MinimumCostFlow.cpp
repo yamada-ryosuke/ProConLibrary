@@ -26,49 +26,10 @@ private:
 
 	EdgeLists edges;
 	const int source_, sink_;
-	std::vector<int64_t> distance_;
-	std::vector<bool> visited_;
-
-	void calcDistance()
-	{
-		std::fill(distance_.begin(), distance_.end(), inf_);
-		distance_[source_] = 0;
-		std::queue<std::pair<int, int64_t>> que;
-		que.push({source_, 0});
-		while (!que.empty())
-		{
-			auto now{que.front()};
-			que.pop();
-			if (now.second > distance_[now.first]) continue;
-			for (Edge& edge: edges[now.first])
-				if (edge.capacity > 0 && distance_[now.first] + edge.cost < distance_[edge.to])
-				{
-					distance_[edge.to] = distance_[now.first] + edge.cost;
-					que.push({edge.to, distance_[edge.to]});
-				}
-		}
-	}
-
-	int64_t calcCapacity(const int index, const int64_t flow)
-	{
-		if (index == source_) return flow;
-		visited_[index] = true;
-		for (Edge& prev_node: edges[index])
-		{
-			Edge& rev_edge{edges[prev_node.to][prev_node.rev_i]};
-			if (visited_[prev_node.to] || rev_edge.capacity == 0 || distance_[prev_node.to] + rev_edge.cost != distance_[index]) continue;
-			const int64_t additional_flow{calcCapacity(prev_node.to, std::min(flow, rev_edge.capacity))};
-			if (additional_flow == 0) continue;
-			prev_node.capacity += additional_flow;
-			rev_edge.capacity -= additional_flow;
-			return additional_flow;
-		}
-		return 0;
-	}
 
 public:
 	MinCostFlow(const int node_num, const int source, const int sink)
-		: edges(node_num), distance_(node_num), visited_(node_num), source_(source), sink_(sink) {}
+		: edges(node_num), source_(source), sink_(sink) {}
 	
 	void addEdge(const int from, const int to, const int64_t cost, const int capacity)
 	{
@@ -81,12 +42,39 @@ public:
 		int64_t min_cost{};
 		for (int64_t flow_rest{flow}; flow_rest > 0;)
 		{
-			calcDistance();
-			if (distance_[sink_] == inf_) return inf_;
-			std::fill(visited_.begin(), visited_.end(), false);
-			int64_t additional_flow{calcCapacity(sink_, flow_rest)};
+			std::vector<int64_t> distance(edges.size(), inf_);
+			distance[source_] = 0;
+			std::vector<int> revEdges(edges.size());
+			std::queue<std::pair<int, int64_t>> que;
+			que.push({source_, 0});
+			while (!que.empty())
+			{
+				auto now{que.front()};
+				que.pop();
+				if (now.second > distance[now.first]) continue;
+				for (Edge& edge: edges[now.first])
+					if (edge.capacity > 0 && distance[now.first] + edge.cost < distance[edge.to])
+					{
+						distance[edge.to] = distance[now.first] + edge.cost;
+						que.push({edge.to, distance[edge.to]});
+						revEdges[edge.to] = edge.rev_i;
+					}
+			}
+			if (distance[sink_] == inf_) return inf_;
+			int64_t additional_flow{flow_rest};
+			for (int index{sink_}; index != source_; index = edges[index][revEdges[index]].to)
+			{
+				Edge& revEdge{edges[index][revEdges[index]]};
+				additional_flow = std::min(additional_flow, edges[revEdge.to][revEdge.rev_i].capacity);
+			}
+			for (int index{sink_}; index != source_; index = edges[index][revEdges[index]].to)
+			{
+				Edge& revEdge{edges[index][revEdges[index]]};
+				edges[revEdge.to][revEdge.rev_i].capacity -= additional_flow;
+				revEdge.capacity += additional_flow;
+			}
 			flow_rest -= additional_flow;
-			min_cost += additional_flow * distance_[sink_];
+			min_cost += additional_flow * distance[sink_];
 		}
 		return min_cost;
 	}
