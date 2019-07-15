@@ -8,24 +8,24 @@ struct Edge {
 	// int from;
 	// int rev_i;
 };
+using EdgeVec = std::vector<Edge>;
+using EdgeLists = std::vector<EdgeVec>;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////// ここからコピペ ////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///////////////////////
-// 最近共通祖先クエリ //
-//////////////////////
+///////////////////
+// 木の祖先クエリ //
+///////////////////
 
 // コンストラクタに渡す木は子に向かう有向グラフでも無向グラフでもいい
-class LCA {
+class TreeAncestor {
 private:
-	using ve = std::vector<Edge>;
-	using vve = std::vector<ve>;
 	using vi = std::vector<int>;
 	using vvi = std::vector<vi>;
 
-	const vve& edges_;
+	const EdgeLists& edges_;
 	vvi ancestors_;
 	vi depthList_;
 	const int root_;
@@ -42,7 +42,7 @@ private:
 public:
 	const vi& depthList;
 
-	LCA(const vve& adjacentList, const int root)
+	TreeAncestor(const EdgeLists& adjacentList, const int root)
 		: edges_(adjacentList), root_(root), depthList(depthList_)
 	{
 		int size{1};
@@ -55,6 +55,7 @@ public:
 				e[i] = ancestors_[e[i - 1]][i - 1];
 	}
 
+	// fromからdistanceだけ根の方向にさかのぼった頂点のindexを返す
 	int calcAncestor(const int from, const int distance)
 	{
 		int ret{from};
@@ -64,6 +65,7 @@ public:
 		return ret;
 	}
 
+	// index0とindex1の最近共通祖先のindexを返す
 	int calcLCA(int index0, int index1)
 	{
 		if (depthList_[index0] > depthList_[index1])
@@ -90,9 +92,7 @@ int main()
 {
 	int n;
 	scanf("%d", &n);
-	using ve = std::vector<Edge>;
-	using vve = std::vector<ve>;
-	vve graph(n);
+	EdgeLists graph(n);
 	for (auto& e: graph)
 	{
 		int k;
@@ -101,7 +101,7 @@ int main()
 		for (auto& f: e)
 			scanf("%d", &f.to);
 	}
-	LCA lca(graph, 0);
+	TreeAncestor lca(graph, 0);
 	int q;
 	scanf("%d", &q);
 	for (int i{}; i < q; i++)

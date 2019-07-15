@@ -8,6 +8,8 @@ struct Edge {
 	// int from;
 	// int rev_i;
 };
+using EdgeVec = std::vector<Edge>;
+using EdgeLists = std::vector<EdgeVec>;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////// ここからコピペ ////////////////////////////////////////////////
@@ -22,11 +24,9 @@ class SCC {
 private:
 	using vi = std::vector<int>;
 	using vvi = std::vector<vi>;
-	using ve = std::vector<Edge>;
-	using Adjacent = std::vector<ve>;
 	using vb = std::vector<bool>;
 
-	const Adjacent& edge_;
+	const EdgeLists& edge_;
 	vvi componentElements_, revEdge_;
 	vi belongTo_;
 
@@ -48,10 +48,12 @@ private:
 	}
 
 public:
+	// belongTo[i]は元のグラフの要素iが属している強連結成分のindex
 	const vi& belongTo;
+	// belongToの逆像、compoenentElements.size()は強連結成分の個数
 	const vvi& componentElements;
 
-	SCC(const Adjacent& adjacentList)
+	SCC(const EdgeLists& adjacentList)
 		: edge_(adjacentList), belongTo(belongTo_), componentElements(componentElements_)
 	{
 		revEdge_.resize(edge_.size());
@@ -75,17 +77,18 @@ public:
 		}
 	}
 
-	vvi makeDAG()
+	// 強連結成分を押しつぶした時のDAGを隣接リストで返す
+	EdgeLists makeDAG()
 	{
 		std::set<std::pair<int, int>> added;
-		vvi dagList(edge_.size());
+		EdgeLists dagList(edge_.size());
 		for (int from_i{}; from_i < (int)edge_.size(); from_i++)
 			for (const auto& to_e: edge_[from_i])
 			{
 				const int dag_from{belongTo[from_i]}, dag_to{belongTo[to_e.to]};
 				if (dag_from == dag_to || added.find({dag_from, dag_to}) != added.end())
 					continue;
-				dagList[dag_from].push_back(dag_to);
+				dagList[dag_from].push_back({dag_to});
 				added.insert({dag_from, dag_to});
 			}
 		return std::move(dagList);
@@ -101,8 +104,7 @@ int main()
 {
 	int V, E;
 	scanf("%d%d", &V, &E);
-	using ve = std::vector<Edge>;
-	std::vector<ve> edges(V);
+	EdgeLists edges(V);
 	for (int i{}; i < E; i++)
 	{
 		int s, t;

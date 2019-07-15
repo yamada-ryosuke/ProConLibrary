@@ -17,7 +17,6 @@ struct Edge {
 	int from;
 	int rev_i;
 };
-
 using EdgeVec = std::vector<Edge>;
 using EdgeLists = std::vector<EdgeVec>;
 

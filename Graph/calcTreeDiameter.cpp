@@ -8,6 +8,9 @@ struct Edge {
 	// int from;
 	// int rev_i;
 };
+using EdgeVec = std::vector<Edge>;
+using EdgeLists = std::vector<EdgeVec>;
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////// ここからコピペ ////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -16,8 +19,9 @@ struct Edge {
 // 木の直径 //
 /////////////
 
-// 無向の木を渡す必要がある
-std::tuple<int, int, decltype(Edge::dist)> calcTreeDiameter(const std::vector<std::vector<Edge>>& edges)
+// 引数は無向の木の隣接リスト
+// 戻り値は{直径の端のindex, もう一方の端のindex, 直径の長さ}
+std::tuple<int, int, decltype(Edge::dist)> calcTreeDiameter(const EdgeLists& edges)
 {
 	using Dist = decltype(Edge::dist);
 	using pid = std::pair<int, Dist>;
@@ -61,12 +65,10 @@ std::tuple<int, int, decltype(Edge::dist)> calcTreeDiameter(const std::vector<st
 
 int main()
 {
-	using ve = std::vector<Edge>;
-	using vve = std::vector<ve>;
 
 	int n;
 	scanf("%d", &n);
-	vve graph(n);
+	EdgeLists graph(n);
 	for (int i{}; i < n - 1; i++)
 	{
 		int s, t, w;
@@ -75,5 +77,6 @@ int main()
 		graph[t].push_back({s, w});
 	}
 	printf("%lld\n", std::get<2>(calcTreeDiameter(graph)));
+
 	return 0;
 }
