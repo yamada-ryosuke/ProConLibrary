@@ -22,17 +22,41 @@ private:
 	const int source_;
 	std::vector<Metric> distance_;
 public:
-	const Metric inf;
+	const Metric inf, negative_inf;
 
 	BellmanFord(const EdgeLists& edges, const int source)
-		: edges_(edges), source_(source), distance_(edges.size(), std::numeric_limits<Metric>::max()), inf(std::numeric_limits<Metric>::max())
+		: edges_(edges), source_(source), distance_(edges.size(), std::numeric_limits<Metric>::max()),
+		inf(std::numeric_limits<Metric>::max()), negative_inf(std::numeric_limits<Metric>::min())
 	{
 		distance_[source] = 0;
-		for (int loop{}; loop < (int)edges.size(); loop++)
-			for (int now{}; now < (int)edges.size(); now++)
+		for (int loop{}; loop < (int)edges_.size(); loop++)
+			for (int now{}; now < (int)edges_.size(); now++)
 				if (distance_[now] != inf)
-					for (const Edge& next: edges[now])
+					for (const Edge& next: edges_[now])
 						distance_[next.to] = std::min(distance_[next.to], distance_[now] + next.dist);
+		
+		std::vector<bool> isInCycle(edges_.size());
+		std::queue<int> updatedQueue;
+		for (int from{}; from < (int)edges_.size(); from++)
+			if (distance_[from] != inf)
+				for (const Edge& next: edges_[from])
+					if (!isInCycle[next.to] && distance_[from] + next.dist < distance_[next.to])
+					{
+						isInCycle[next.to] = true;
+						updatedQueue.push(next.to);
+					}
+		while (!updatedQueue.empty())
+		{
+			int now{updatedQueue.front()};
+			updatedQueue.pop();
+			distance_[now] = negative_inf;
+			for (const Edge& next: edges_[now])
+				if (!isInCycle[next.to])
+				{
+					isInCycle[next.to] = true;
+					updatedQueue.push(next.to);
+				}
+		}
 	}
 
 	// get distance_
@@ -44,52 +68,11 @@ public:
 	decltype(distance_.begin()) begin() { return distance_.begin(); }
 	decltype(distance_.end()) end() { return distance_.end(); }
 
-	// 始点から負閉路に到達しうるか
 	bool negativeCycleExists() const
 	{
-		std::vector<Metric> latestDistance(distance_);
-		for (int loop{}; loop < (int)edges_.size(); loop++)
-			for (int now{}; now < (int)edges_.size(); now++)
-				if (latestDistance[now] != inf)
-					for (const Edge& next: edges_[now])
-						latestDistance[next.to] = std::min(latestDistance[next.to], latestDistance[now] + next.dist);
-		for (int i{}; i < (int)distance_.size(); i++)
-			if (distance_[i] != latestDistance[i])
+		for (const Metric& dist: distance_)
+			if (dist == negative_inf)
 				return true;
-		return false;
-	}
-
-	// 始点から終点のパスであって負閉路を経由するものが存在するか
-	bool negativeCycleExists(const int sink) const
-	{
-		std::vector<Metric> latestDistance(distance_);
-		for (int loop{}; loop < (int)edges_.size(); loop++)
-			for (int now{}; now < (int)edges_.size(); now++)
-				if (latestDistance[now] != inf)
-					for (const Edge& next: edges_[now])
-						latestDistance[next.to] = std::min(latestDistance[next.to], latestDistance[now] + next.dist);
-
-		std::vector<std::vector<int>> revEdges;
-		for (int from{}; from < (int)edges_.size(); from++)
-			for (const Edge& edge: edges_[from])
-				revEdges[edge.to].push_back(from);
-		std::vector<bool> visited;
-		std::queue<int> unvisited;
-		visited[source_] = true;
-		unvisited.push(source_);
-		while (!unvisited.empty())
-		{
-			const int now{unvisited.front()};
-			unvisited.pop();
-			if (distance_[now] != latestDistance[now])
-				return true;
-			for (const int& next: revEdges[now])
-				if (!visited[next])
-				{
-					visited[next] = true;
-					unvisited.push(next);
-				}
-		}
 		return false;
 	}
 };

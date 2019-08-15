@@ -24,19 +24,19 @@ std::vector<Metric> dijkstra(const EdgeLists& edges, const int source)
 {
 	std::vector<Metric> distance(edges.size(), 1ll << 60);
 	using DistPoint = std::pair<Metric, int>;
-	std::priority_queue<DistPoint, std::vector<DistPoint>, std::greater<DistPoint>> pq;
+	std::priority_queue<DistPoint, std::vector<DistPoint>, std::greater<DistPoint>> updatedQueue;
 	distance[source] = 0;
-	pq.push({0, source});
-	while (!pq.empty())
+	updatedQueue.push({0, source});
+	while (!updatedQueue.empty())
 	{
-		DistPoint now{pq.top()};
-		pq.pop();
+		DistPoint now{updatedQueue.top()};
+		updatedQueue.pop();
 		if (now.first > distance[now.second]) continue;
 		for (const Edge& next: edges[now.second])
 			if (now.first + next.dist < distance[next.to])
 			{
 				distance[next.to] = now.first + next.dist;
-				pq.push({distance[next.to], next.to});
+				updatedQueue.push({distance[next.to], next.to});
 			}
 	}
 	return std::move(distance);
