@@ -115,13 +115,13 @@ public:
 		}
 	}
 
-	constexpr ModInt<mod_> getCombi(const int n, const int r)
+	constexpr ModInt<mod_> getCombi(const int n, const int r) const
 	{
 		if (r < 0 || n < 0 || n - r < 0) return 0;
 		return fact[n] * finv[r] * finv[n - r];
 	}
 
-	constexpr ModInt<mod_> getPerm(const int n, const int r)
+	constexpr ModInt<mod_> getPerm(const int n, const int r) const
 	{
 		if (r < 0 || n < 0 || n - r < 0) return 0;
 		return fact[n] * finv[n - r];
