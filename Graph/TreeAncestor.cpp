@@ -56,7 +56,7 @@ public:
 	}
 
 	// fromからdistanceだけ根の方向にさかのぼった頂点のindexを返す
-	int calcAncestor(const int from, const int distance)
+	int calcAncestor(const int from, const int distance) const
 	{
 		int ret{from};
 		for (int digit{}, rest{distance}; rest > 0; rest >>= 1, digit++)
@@ -66,7 +66,7 @@ public:
 	}
 
 	// index0とindex1の最近共通祖先のindexを返す
-	int calcLCA(int index0, int index1)
+	int calcLCA(int index0, int index1) const
 	{
 		if (depthList_[index0] > depthList_[index1])
 			index0 = calcAncestor(index0, depthList_[index0] - depthList_[index1]);
@@ -88,6 +88,7 @@ public:
 /////////////////////////////////////////// ここまでコピペ ////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=GRL_5_C&lang=jp
 int main()
 {
 	int n;

@@ -76,7 +76,7 @@ public:
 	}
 
 	// 累乗
-	Matrix operator^(const int64_t index)
+	Matrix operator^(const int64_t index) const
 	{
 		Matrix ret((*this).getOne()), pow(*this);
 		for (int64_t i{index}; i > 0; i >>= 1)

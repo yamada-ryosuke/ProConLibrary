@@ -78,7 +78,7 @@ public:
 	}
 
 	// 強連結成分を押しつぶした時のDAGを隣接リストで返す
-	EdgeLists makeDAG()
+	EdgeLists makeDAG() const
 	{
 		std::set<std::pair<int, int>> added;
 		EdgeLists dagList(edge_.size());

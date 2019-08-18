@@ -16,6 +16,7 @@ std::vector<int> MPAlgorithm(const Sequence& sequence)
 	return std::move(table);
 }
 
+// http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_14_B&lang=jp
 int main()
 {
 	std::string T, P;
