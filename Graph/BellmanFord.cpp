@@ -68,7 +68,7 @@ public:
 	decltype(distance_.begin()) begin() { return distance_.begin(); }
 	decltype(distance_.end()) end() { return distance_.end(); }
 
-	bool negativeCycleExists() const
+	bool hasNegativeCycle() const
 	{
 		for (const Metric& dist: distance_)
 			if (dist == negative_inf)
@@ -95,7 +95,7 @@ int main()
 	}
 	BellmanFord<> bellmanFord(edges, r);
 	
-	if (bellmanFord.negativeCycleExists())
+	if (bellmanFord.hasNegativeCycle())
 		puts("NEGATIVE CYCLE");
 	else
 		for (auto& e: bellmanFord)
