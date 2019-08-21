@@ -30,7 +30,7 @@ public:
 	Matrix(Matrix&& mat)
 		: M(mat.M), N(mat.N), container_(std::move(mat.container_)){}
 	// コピーコンストラクタ
-	Matrix(Matrix& mat)
+	Matrix(const Matrix& mat)
 		: M(mat.M), N(mat.N), container_(mat.container_){}
 
 	// 要素アクセス
