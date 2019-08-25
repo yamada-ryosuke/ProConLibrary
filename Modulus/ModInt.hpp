@@ -43,6 +43,21 @@ public:
 		return *this * (operand ^ (mod_ - 2));
 	}
 
+	// インクリメント・デクリメント
+	constexpr ModInt& operator++()
+	{
+		if (integer_ + 1 == mod_) integer_ = 0;
+		else integer_++;
+		return *this;
+	}
+
+	constexpr ModInt& operator--()
+	{
+		if (integer_ == 0) integer_ = mod_ - 1;
+		else integer_--;
+		return *this;
+	}
+
 	// 累乗
 	constexpr ModInt operator^(const int64_t operand) const
 	{

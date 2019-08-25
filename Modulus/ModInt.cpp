@@ -11,5 +11,7 @@ int main()
 	ModInt<> d(400'000);
 	d *= 500'000;
 	printf("%lld\n", (int64_t)d);
+	++d;	// 後置は定義されていない
+	printf("%lld\n", (int64_t)d);
 	return 0;
 }
