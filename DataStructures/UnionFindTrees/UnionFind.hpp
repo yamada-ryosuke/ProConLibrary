@@ -13,12 +13,14 @@
 class UnionFind {
 private:
 	std::vector<int> parent_, size_;
+
 public:
 	UnionFind(const int size)
 		:parent_(size), size_(size, 1)
 	{
-		for (int i{}; i < size; i++) parent_[i] = i;
+		std::iota(parent_.begin(), parent_.end(), 0);
 	}
+
 	int calcRoot(const int index)
 	{
 		int &parent{parent_[index]};
@@ -27,10 +29,12 @@ public:
 		parent = calcRoot(parent);
 		return parent;
 	}
+
 	bool areConnected(const int index1, const int index2)
 	{
 		return calcRoot(index1) == calcRoot(index2);
 	}
+
 	void unite(const int index1, const int index2)
 	{
 		const int root1{calcRoot(index1)}, root2{calcRoot(index2)};
@@ -47,8 +51,10 @@ public:
 		}
 		return;
 	}
+
 	int calcSize(const int index)
 	{
 		return size_[calcRoot(index)];
 	}
+
 };
