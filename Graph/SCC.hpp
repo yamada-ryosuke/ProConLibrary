@@ -70,17 +70,19 @@ public:
 	// 強連結成分を押しつぶした時のDAGを隣接リストで返す
 	vvi makeDAG() const
 	{
-		std::set<std::pair<int, int>> added;
 		vvi dagList(edge_.size());
 		for (int from_i{}; from_i < (int)edge_.size(); from_i++)
 			for (const auto& to_e: edge_[from_i])
 			{
 				const int dag_from{belongTo[from_i]}, dag_to{belongTo[to_e.to]};
-				if (dag_from == dag_to || added.find({dag_from, dag_to}) != added.end())
-					continue;
+				if (dag_from == dag_to) continue;
 				dagList[dag_from].push_back(dag_to);
-				added.insert({dag_from, dag_to});
 			}
+		for (auto& e: dagList)
+		{
+			std::sort(e.begin(), e.end());
+			e.erase(std::unique(e.begin(), e.end()), e.end());
+		}
 		return std::move(dagList);
 	}
 };
