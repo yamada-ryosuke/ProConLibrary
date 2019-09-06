@@ -28,8 +28,6 @@ public:
 	{
 		build(array.size());
 		std::copy(array.begin(), array.end(), container_.begin() + (container_.size() >> 1));
-		for (int i{((int)container_.size() >> 1) - 1}; i > 0; i--)
-			container_[i] = container_[2 * i] + container_[2 * i + 1];
 	}
 	// left,rightは0-indexed、[left, right)の半開区間
 	void update(const int left, const int right, const T added)
