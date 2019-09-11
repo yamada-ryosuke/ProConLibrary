@@ -65,7 +65,7 @@ public:
 
 	constexpr ModInt operator-()
 	{
-		if (integer_ == 0) return ModInt(mod_ - 1ll);
+		if (integer_ == 0) return ModInt(0ll);
 		else return ModInt(mod_ - integer_);
 	}
 
