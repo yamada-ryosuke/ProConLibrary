@@ -43,7 +43,7 @@ public:
 		return *this * (operand ^ (mod_ - 2));
 	}
 
-	// インクリメント・デクリメント
+	// 単項演算子
 	constexpr ModInt& operator++()
 	{
 		if (integer_ + 1 == mod_) integer_ = 0;
@@ -56,6 +56,17 @@ public:
 		if (integer_ == 0) integer_ = mod_ - 1;
 		else integer_--;
 		return *this;
+	}
+
+	constexpr ModInt operator+()
+	{
+		return *this;
+	}
+
+	constexpr ModInt operator-()
+	{
+		if (integer_ == 0) return ModInt(mod_ - 1ll);
+		else return ModInt(mod_ - integer_);
 	}
 
 	// 累乗

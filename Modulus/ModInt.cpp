@@ -13,5 +13,7 @@ int main()
 	printf("%lld\n", (int64_t)d);
 	++d;	// 後置は定義されていない
 	printf("%lld\n", (int64_t)d);
+	std::cout << -d << std::endl;
+	
 	return 0;
 }
