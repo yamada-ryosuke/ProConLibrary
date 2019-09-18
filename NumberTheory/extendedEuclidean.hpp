@@ -14,8 +14,5 @@ std::array<int64_t, 3> extendedEuclidean(const int64_t x, const int64_t y)
 {
 	if (y == 0) return {1, 0, x};
 	auto next{extendedEuclidean(y, x % y)};
-	// next[1] * (x % y) + next[0] * y == gcd(x, y)
-	// next[1] * (x - (x / y) * y) + next[0] * y == gcd(x, y)
-	// next[1] * x + (next[0] - (x / y) * next[1]) * y == gcd(x, y)
 	return {next[1], next[0] - (x / y) * next[1], next[2]};
 }
