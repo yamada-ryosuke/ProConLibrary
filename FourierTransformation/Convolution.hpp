@@ -15,20 +15,17 @@ private:
 	Vector polynomial1_, polynomial2_;
 
 	// signが正ならDFT、負ならIDFT
-	// TODO: 非再帰
 	template <int sign>
-	Vector DFT(const Vector& polynomial, const int begin, const int width) const
+	Vector DFT(const Vector& polynomial) const
 	{
-		const int length{size_ / width};
-		if (length == 1) return {polynomial[begin]};
-		
-		const Vector smallFourier1{DFT<sign>(polynomial, begin, 2 * width)}, smallFourier2{DFT<sign>(polynomial, begin + width, 2 * width)};
-		Vector ret(length);
-		int power_i{sign > 0? 0: size_};
-		for (int i{}; 2 * i < length; i++, power_i += sign * width)
-			ret[i] = smallFourier1[i] + power_[power_i] * smallFourier2[i];
-		for (int i{}; 2 * i < length; i++, power_i += sign * width)
-			ret[length / 2 + i] = smallFourier1[i] + power_[power_i] * smallFourier2[i];
+		Vector prev(size_), ret(polynomial);
+		for (int width{size_ >> 1}; width > 0; width >>= 1)
+		{
+			std::swap(prev, ret);
+			for (int begin{}; begin < width; begin++)
+				for (int i{}, power_i{sign > 0? 0: size_}; begin + i < size_; i += width, power_i += sign * width)
+					ret[begin + i] = prev[(begin + 2 * i) % size_] + power_[power_i] * prev[(begin + 2 * i + width) % size_];
+		}
 		return std::move(ret);
 	}
 
@@ -47,19 +44,20 @@ public:
 
 		constexpr Real pi{3.1415926535897932384626433832795028841971};
 		power_.resize(size_ + 1);
-		power_.front().real(1);
-		const Complex root{std::cos(2 * pi / size_), std::sin(2 * pi / size_)};
-		for (int i{1}; i <= size_; i++)
-			power_[i] = root * power_[i - 1];
+		for (int i{}; i <= size_; i++)
+		{
+			power_[i].real(std::cos(2 * pi / size_ * i));
+			power_[i].imag(std::sin(2 * pi / size_ * i));
+		}
 	}
 
 	std::vector<int64_t> operator()() const
 	{
-		const Vector fourierPolynomial1{DFT<1>(polynomial1_, 0, 1)}, fourierPolynomial2{DFT<1>(polynomial2_, 0, 1)};
+		const Vector fourierPolynomial1{DFT<1>(polynomial1_)}, fourierPolynomial2{DFT<1>(polynomial2_)};
 		Vector fourierPolynomial(size_);
 		for (int i{}; i < size_; i++)
 			fourierPolynomial[i] = fourierPolynomial1[i] * fourierPolynomial2[i];
-		const Vector convolution{DFT<-1>(fourierPolynomial, 0, 1)};
+		const Vector convolution{DFT<-1>(fourierPolynomial)};
 		std::vector<int64_t> ret(size_);
 		for (int i{}; i < size_; i++)
 			ret[i] = std::round(convolution[i].real() / size_);
