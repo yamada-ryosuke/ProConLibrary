@@ -119,5 +119,7 @@ public:
 	{
 		return ModInt(0ll);
 	}
+
+	static constexpr int64_t mod{mod_};
 };
 using Mint = ModInt<>;
