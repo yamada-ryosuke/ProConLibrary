@@ -1,34 +1,33 @@
 #include <bits/stdc++.h>
 
+//////////////
+// 畳み込み //
+/////////////
+
 class Convolution {
 private:
 	using Real = long double;
 	using Complex = std::complex<Real>;
 	using Vector = std::vector<Complex>;
 
-	Vector polynomial1_, polynomial2_;
 	int size_{1};
+	Vector power_;
+	Vector polynomial1_, polynomial2_;
 
-	Vector DFT(const Vector& polynomial, const int begin, const int width, const int sign)
+	// signが正ならDFT、負ならIDFT
+	template <int sign>
+	Vector DFT(const Vector& polynomial, const int begin, const int width) const
 	{
 		const int length{size_ / width};
 		if (length == 1) return {polynomial[begin]};
 		
-		constexpr long double pi{3.1415926535897932384626433832795028841971};
-		Vector smallFourier1{DFT(polynomial, begin, 2 * width, sign)}, smallFourier2{DFT(polynomial, begin + width, 2 * width, sign)};
+		const Vector smallFourier1{DFT<sign>(polynomial, begin, 2 * width)}, smallFourier2{DFT<sign>(polynomial, begin + width, 2 * width)};
 		Vector ret(length);
-		const Complex root{std::cos(2 * pi / length * sign), std::sin(2 * pi / length * sign)};
-		Complex power{1, 0};
-		for (int i{}; 2 * i < length; i++)
-		{
-			ret[i] = smallFourier1[i] + power * smallFourier2[i];
-			power *= root;
-		}
-		for (int i{}; 2 * i < length; i++)
-		{
-			ret[length / 2 + i] = smallFourier1[i] + power * smallFourier2[i];
-			power *= root;
-		}
+		int power_i{sign > 0? 0: size_};
+		for (int i{}; 2 * i < length; i++, power_i += sign * width)
+			ret[i] = smallFourier1[i] + power_[power_i] * smallFourier2[i];
+		for (int i{}; 2 * i < length; i++, power_i += sign * width)
+			ret[length / 2 + i] = smallFourier1[i] + power_[power_i] * smallFourier2[i];
 		return std::move(ret);
 	}
 
@@ -44,15 +43,22 @@ public:
 			polynomial1_[i].real(polynomial1[i]);
 		for (int i{}; i < (int)polynomial2.size(); i++)
 			polynomial2_[i].real(polynomial2[i]);
+
+		constexpr long double pi{3.1415926535897932384626433832795028841971};
+		power_.resize(size_ + 1);
+		power_.front().real(1);
+		const Complex root{std::cos(2 * pi / size_), std::sin(2 * pi / size_)};
+		for (int i{1}; i <= size_; i++)
+			power_[i] = root * power_[i - 1];
 	}
 
-	std::vector<int64_t> operator()()
+	std::vector<int64_t> operator()() const
 	{
-		Vector fourierPolynomial1{DFT(polynomial1_, 0, 1, 1)}, fourierPolynomial2{DFT(polynomial2_, 0, 1, 1)};
+		const Vector fourierPolynomial1{DFT<1>(polynomial1_, 0, 1)}, fourierPolynomial2{DFT<1>(polynomial2_, 0, 1)};
 		Vector fourierPolynomial(size_);
 		for (int i{}; i < size_; i++)
 			fourierPolynomial[i] = fourierPolynomial1[i] * fourierPolynomial2[i];
-		Vector convolution{DFT(fourierPolynomial, 0, 1, -1)};
+		const Vector convolution{DFT<-1>(fourierPolynomial, 0, 1)};
 		std::vector<int64_t> ret(size_);
 		for (int i{}; i < size_; i++)
 			ret[i] = std::round(convolution[i].real() / size_);
