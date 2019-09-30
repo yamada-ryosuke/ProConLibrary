@@ -6,7 +6,7 @@
 
 class Convolution {
 private:
-	using Real = long double;
+	using Real = long double;	// doubleの方が大幅に速い
 	using Complex = std::complex<Real>;
 	using Vector = std::vector<Complex>;
 
@@ -15,6 +15,7 @@ private:
 	Vector polynomial1_, polynomial2_;
 
 	// signが正ならDFT、負ならIDFT
+	// TODO: 非再帰
 	template <int sign>
 	Vector DFT(const Vector& polynomial, const int begin, const int width) const
 	{
@@ -44,7 +45,7 @@ public:
 		for (int i{}; i < (int)polynomial2.size(); i++)
 			polynomial2_[i].real(polynomial2[i]);
 
-		constexpr long double pi{3.1415926535897932384626433832795028841971};
+		constexpr Real pi{3.1415926535897932384626433832795028841971};
 		power_.resize(size_ + 1);
 		power_.front().real(1);
 		const Complex root{std::cos(2 * pi / size_), std::sin(2 * pi / size_)};
