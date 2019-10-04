@@ -34,8 +34,8 @@ private:
 	void pushNext(std::stack<NodeInfo> &pre_added, const NodeInfo &node)
 	{
 		const int mid{(node[1] + node[2]) >> 1};
-		pre_added.push({2 * node[0] + 1, node[1], mid});
-		pre_added.push({2 * node[0], mid, node[2]});
+		pre_added.push({2 * node[0] + 1, mid, node[2]});
+		pre_added.push({2 * node[0], node[1], mid});
 	}
 
 public:
@@ -47,7 +47,7 @@ public:
 		std::copy(array.begin(), array.end(), sum_container_.begin() + (sum_container_.size() >> 1));
 
 		for (auto i{(sum_container_.size() >> 1) - 1}; i > 0; i--)
-			sum_container_[i] = std::min(sum_container_[2 * i], sum_container_[2 * i + 1]);
+			sum_container_[i] = sum_container_[2 * i] + sum_container_[2 * i + 1];
 	}
 	// [left,right)の半開区間(0-indexed)にaddedを加算
 	void update(const int left, const int right, const T added)
