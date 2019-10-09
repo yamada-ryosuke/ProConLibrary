@@ -14,7 +14,7 @@ private:
 	Vector power_;
 	Vector polynomial1_, polynomial2_;
 
-	// signが正ならDFT、負ならIDFT
+	// signが正ならDFT、負ならIDFT(1/N倍はされない)
 	template <int sign>
 	Vector DFT(const Vector& polynomial) const
 	{

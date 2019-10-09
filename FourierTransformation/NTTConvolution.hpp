@@ -25,18 +25,17 @@
 // {469'762'049, 3},  // 2^26 * 7 + 1
 // {167'772'161, 3},  // 2^25 * 5 + 1
 
-// TODO: orderをpolynomial1_.size() <= order <= 2^order_logとなるような最小の2べきになるように調整
-template <typename T = ModInt<998'244'353>, int64_t root = 15311432, int order_log = 23>
+template <typename T = ModInt<998'244'353>, int64_t primitive_root = 3>
 class NTTConvolution {
 private:
 	using Vector = std::vector<T>;
 
-	const int order_{1};
-	const T root_;
+	int order_{1};
+	T root_;
 	Vector power_;
 	Vector polynomial1_, polynomial2_;
 
-	// signが正ならDFT、負ならIDFT
+	// signが正ならDFT、負ならIDFT(1/N倍はされない)
 	template <int sign>
 	Vector DFT(const Vector& polynomial) const
 	{
@@ -53,8 +52,14 @@ private:
 
 public:
 	NTTConvolution(const Vector& polynomial1, const Vector& polynomial2)
-		: order_(1 << order_log), root_(root), power_(order_ + 1), polynomial1_(order_), polynomial2_(order_)
 	{
+		order_ = 1;
+		while (order_ < (int)polynomial1.size() + (int)polynomial2.size() - 1) order_ <<= 1;
+		root_ = T(primitive_root) ^ ((T::mod - 1) / order_);
+
+		polynomial1_.resize(order_);
+		polynomial2_.resize(order_);
+
 		power_.resize(order_ + 1);
 		power_.front() = T(1ll);
 		for (int i{1}; i <= order_; i++)
