@@ -10,10 +10,10 @@
 
 // 負辺を含まないグラフの最短経路アルゴリズム
 // Edgeは{to, dist}
-template <typename Metric = int64_t>
-std::vector<Metric> dijkstra(const EdgeLists& edges, const int source)
+decltype(auto) dijkstra(const EdgeLists& edges, const int source)
 {
-	std::vector<Metric> distance(edges.size(), 1ll << 60);
+	using Metric = decltype(Edge::dist);
+	std::vector<Metric> distance(edges.size(), std::numeric_limits<Metric>::max());
 	using DistPoint = std::pair<Metric, int>;
 	std::priority_queue<DistPoint, std::vector<DistPoint>, std::greater<DistPoint>> updatedQueue;
 	distance[source] = 0;
@@ -30,5 +30,5 @@ std::vector<Metric> dijkstra(const EdgeLists& edges, const int source)
 				updatedQueue.push({distance[next.to], next.to});
 			}
 	}
-	return std::move(distance);
+	return distance;
 }

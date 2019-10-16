@@ -14,8 +14,9 @@ int main()
 	}
 	auto distance{dijkstra(edges, r)};
 	
+	constexpr int64_t inf{std::numeric_limits<int64_t>::max()};
 	for (int64_t& e: distance)
-		if (e == (1ll << 60))
+		if (e == inf)
 			puts("INF");
 		else
 			printf("%lld\n", e);
