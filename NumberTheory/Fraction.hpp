@@ -125,4 +125,6 @@ public:
 	Integer floor() const { return numer / denom; }
 	// 小数型への変換
 	long double real() const { return (long double)numer / denom; }
+	// 文字列への変換
+	std::string toString() const { return std::to_string(numer) + "/" + std::to_string(denom); }
 };
