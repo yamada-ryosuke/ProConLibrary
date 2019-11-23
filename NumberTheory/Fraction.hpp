@@ -4,7 +4,6 @@
 // 分数 //
 //////////
 
-// 非負の有理数を扱える
 // gcdを求める際にstd::swapを使うため、constexprには出来ない
 class Fraction {
 private:
@@ -13,9 +12,14 @@ private:
 
 	void reduce()
 	{
-		const Integer gcd{(Integer)calcGCD(numer, denom)};
+		const Integer gcd{(Integer)calcGCD(std::abs(numer), std::abs(denom))};
 		numerator_ /= gcd;
 		denominator_ /= gcd;
+		if (denom < 0)
+		{
+			numerator_ *= -1;
+			denominator_ *= -1;
+		}
 	}
 
 public:
@@ -27,11 +31,14 @@ public:
 		{
 			reduce();
 		}
+	Fraction(const Fraction& fraction)
+		: numerator_(fraction.numer), denominator_(fraction.denom),
+		numer(numerator_), denom(denominator_) {}
 	
 	// 四則演算
 	Fraction operator+(const Fraction& operand) const
 	{
-		Fraction ret{1, (Integer)calcLCM(this->denom, operand.denom)};
+		Fraction ret{1, (Integer)calcLCM(std::abs(this->denom), std::abs(operand.denom))};
 		ret.numerator_ = this->numer * (ret.denom / this->denom) + operand.numer * (ret.denom / operand.denom);
 		ret.reduce();
 
@@ -39,7 +46,7 @@ public:
 	}
 	Fraction operator-(const Fraction& operand) const
 	{
-		Fraction ret{1, (Integer)calcLCM(this->denom, operand.denom)};
+		Fraction ret{1, (Integer)calcLCM(std::abs(this->denom), std::abs(operand.denom))};
 		ret.numerator_ = this->numer * (ret.denom / this->denom) - operand.numer * (ret.denom / operand.denom);
 		ret.reduce();
 
@@ -126,5 +133,10 @@ public:
 	// 小数型への変換
 	long double real() const { return (long double)numer / denom; }
 	// 文字列への変換
-	std::string toString() const { return std::to_string(numer) + "/" + std::to_string(denom); }
+	std::string toString() const
+	{
+		std::string ret{std::to_string(numer)};
+		if (denom != 1) ret += std::string("/") + std::to_string(denom);
+		return ret;
+	}
 };
