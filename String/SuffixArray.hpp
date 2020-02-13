@@ -58,7 +58,7 @@ private:
 			while (!isSmall[end] || isSmall[end - 1])
 				end++;
 			end++;
-			if ([&]()
+			if (![&]()
 				{
 					for (int i{}; begin + i < end && prev_begin + i < prev_end; i++)
 						if (array[begin + i] != array[prev_begin + i])
@@ -66,9 +66,9 @@ private:
 					return end - begin == prev_end - prev_begin;
 				}()
 			)
-				continue;
-			
-			code_num++;
+			{
+				code_num++;
+			}
 			codeMap[begin] = code_num;
 			prev_begin = begin;
 			prev_end = end;
