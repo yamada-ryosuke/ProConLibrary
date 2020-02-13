@@ -10,20 +10,17 @@ private:
 
 	// 文字列のコード(>0)を受け取る.
 	// 番兵0は呼び出し元で入れておく.
-	std::vector<int> sais(const std::vector<int>& array, const int char_num)
+	std::vector<int> sais(const std::vector<int>& array, const int char_num) const
 	{
 		const int size{(int)array.size()};
-		if (size == 1) return {0};
 
 		// S型L型の判定
 		std::vector<bool> isSmall(size);
 		isSmall.back() = true;
 		for (int i{size - 2}; i >= 0; i--)
 		{
-			if (array[i] < array[i + 1])
-				isSmall[i] = true;
-			else if (array[i] > array[i + 1])
-				isSmall[i] = false;
+			if (array[i] != array[i + 1])
+				isSmall[i] = array[i] < array[i + 1];
 			else
 				isSmall[i] = isSmall[i + 1];
 		}
@@ -37,6 +34,7 @@ private:
 			bucket[i + 1] += bucket[i];
 
 		// LMS-substringのソートの為のinduced sort
+		// lmsIndicesにはLMSの位置が昇順に入る
 		std::vector<int> lmsIndices;
 		lmsIndices.reserve(size >> 1);
 		for (int i{1}; i < size; i++)
@@ -44,56 +42,58 @@ private:
 				lmsIndices.push_back(i);
 		std::vector<int> suffixArray(inducedSort(array, char_num, isSmall, bucket, lmsIndices));
 
+		// lmsIndicesの逆写像
+		std::vector<int> lmsIndicesInv(size, -1);
+		for (int i{}; i < (int)lmsIndices.size(); i++)
+			lmsIndicesInv[lmsIndices[i]] = i;
+
 		// LMS-substringのコード化
-		std::vector<int> codeMap(size, -1);
+		// codeArray:LMS-substringのコードがarrayに出てくる順番に入る.
+		std::vector<int> codeArray(lmsIndices.size());
 		int code_num{};
-		codeMap.back() = 0;
 		for (int i{1}, prev_begin{size - 1}, prev_end{size}; i < size; i++)
 		{
 			const int& begin{suffixArray[i]};
 			if (begin == 0) continue;
 			if (!isSmall[begin] || isSmall[begin - 1]) continue;
 
-			int end{begin + 1};
-			while (!isSmall[end] || isSmall[end - 1])
-				end++;
-			end++;
-			if (![&]()
-				{
-					for (int i{}; begin + i < end && prev_begin + i < prev_end; i++)
-						if (array[begin + i] != array[prev_begin + i])
-							return false;
-					return end - begin == prev_end - prev_begin;
-				}()
-			)
-			{
+			int end{lmsIndices[lmsIndicesInv[begin] + 1] + 1};
+			if (!areEqual(array.begin() + begin, array.begin() + end, array.begin() + prev_begin, array.begin() + prev_end))
 				code_num++;
-			}
-			codeMap[begin] = code_num;
+			codeArray[lmsIndicesInv[begin]] = code_num;
 			prev_begin = begin;
 			prev_end = end;
 		}
 		
-		std::vector<int> codeArray, codeArrayMap;
-		codeArray.reserve(lmsIndices.size());
-		codeArrayMap.reserve(lmsIndices.size());
-		for (int i{}; i < size; i++)
-		{
-			if (codeMap[i] < 0) continue;
-			codeArray.push_back(codeMap[i]);
-			codeArrayMap.push_back(i);
-		}
-		
 		// LMS-substringのsuffix array
-		std::vector<int> lmsSA{sais(codeArray, code_num)};
+		std::vector<int> lmsSA;
+		if (code_num + 1 == (int)codeArray.size())
+		{
+			lmsSA.resize(codeArray.size());
+			for (int i{}; i < (int)codeArray.size(); i++)
+				lmsSA[codeArray[i]] = i;
+		}
+		else
+			lmsSA = sais(codeArray, code_num);
 
 		// 正しいinduced sort
+		std::vector<int> sortedLmsIndices(lmsIndices.size());
 		for (int i{}; i < (int)lmsIndices.size(); i++)
-			lmsIndices[(int)lmsIndices.size() - 1 - i] = codeArrayMap[lmsSA[i]];
-		return inducedSort(array, char_num, isSmall, bucket, lmsIndices);
+			sortedLmsIndices[(int)lmsIndices.size() - 1 - i] = lmsIndices[lmsSA[i]];
+		return inducedSort(array, char_num, isSmall, bucket, sortedLmsIndices);
 	}
 
-	std::vector<int> inducedSort(const std::vector<int>& array, const int char_num, const std::vector<bool>& isSmall, const std::vector<int>& bucket, const std::vector<int>& lmsIndices)
+	template <typename Iterator>
+	bool areEqual(const Iterator begin1, const Iterator end1, const Iterator begin2, const Iterator end2) const
+	{
+		if (end1 - begin1 != end2 - begin2) return false;
+		for (int i{}; begin1 + i != end1; i++)
+			if (begin1[i] != begin2[i])
+				return false;
+		return true;
+	}
+
+	std::vector<int> inducedSort(const std::vector<int>& array, const int char_num, const std::vector<bool>& isSmall, const std::vector<int>& bucket, const std::vector<int>& lmsIndices) const
 	{
 		// lmsの追加
 		const int size{(int)array.size()};
