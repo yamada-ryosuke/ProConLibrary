@@ -140,7 +140,7 @@ public:
 		// 文字列のコード化
 		std::vector<int> numberArray(str.size() + 1);
 		for (int i{}; i < (int)str.size(); i++)
-			numberArray[i] = str[i] - 'a' + 1;
+			numberArray[i] = str[i] - initial_char + 1;
 
 		result_ = sais(numberArray, 26);
 	}
